@@ -43,6 +43,7 @@ npm i docsify-cli -g
 docsify init ./docs
 ```
 如果提示找不到 **`docsify`** 命令，在node的安装目录下 **`/usr/local/node/bin`** 目录下找到 **`docsify`**，将其变为全局命令，建立以下软链接 **`ln -s /usr/local/node/bin/docsify /usr/local/bin`**
+
 3. 启动本地服务
 ```shell
 docsify serve docs
