@@ -6,6 +6,6 @@
 
 > 一个文档收集的地方
 
-[docsify](https://docsify.js.org/#/zh-cn/)
+[Docsify](https://docsify.js.org/#/zh-cn/)
 [GitHub](https://github.com/miaoxm/miaoxm.github.io/)
 [Get Started](/home)
