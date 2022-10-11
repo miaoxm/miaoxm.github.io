@@ -8,4 +8,4 @@
 
 [Docsify](https://docsify.js.org/#/zh-cn/)
 [GitHub](https://github.com/miaoxm/miaoxm.github.io/)
-[Get Started](/)
+[Get Started](/home)
