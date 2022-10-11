@@ -43,10 +43,14 @@
 官方文档中的`源文档`中是这样定义的
 
 > `- Getting started`
-> 	`- [Quick start](quickstart.md)` 
-> 	`- [Writing more pages](more-pages.md)` 
-> 	`- [Custom navbar](custom-navbar.md)` 
-> 	`- [Cover page](cover.md)`
+>
+> ​	`- [Quick start](quickstart.md)`
+>
+> ​	`- [Writing more pages](more-pages.md)`
+>
+> ​	`- [Custom navbar](custom-navbar.md)` 
+>
+> ​	`- [Cover page](cover.md)`
 >
 > 使用的是markdown的语法
 
