@@ -10,4 +10,6 @@
 
 > And More
 >
-> 也会总结一些关于docsify的使用上的语法
+> 也会总结一些关于docsify的使用上的语法。
+
+查看[使用example](example.md)以了解语法。
