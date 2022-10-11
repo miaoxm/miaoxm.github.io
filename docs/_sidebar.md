@@ -1,2 +1,5 @@
-* [首页](/home "首页")
-* [快速阅读](java/read.md "快速阅读")
+* [我的自述](/ "我的自述")
+* [java家族]()
+    * [java基础](/java/base.md "java基础")
+    * [中间件](/java/middleware.md "中间件")
+    * [其他](/java/ "其他")
