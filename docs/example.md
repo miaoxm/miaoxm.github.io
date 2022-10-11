@@ -27,6 +27,10 @@
   > `[Getting Started](#About)`
   >
   > 这表示跳转到根目录下的`README.md`文档下的`About`标题
+  >
+  > 或者这样直接跳转到默认文档下
+  >
+  > `[Getting Startedd](/README)`
 
 ## 关于侧边栏目录定义
 
@@ -39,14 +43,10 @@
 官方文档中的`源文档`中是这样定义的
 
 > `- Getting started`
->
-> ​	`- [Quick start](quickstart.md)`
->
-> ​	`- [Writing more pages](more-pages.md)`
->
-> ​	`- [Custom navbar](custom-navbar.md)`
->
-> ​	`- [Cover page](cover.md)`
+> 	`- [Quick start](quickstart.md)` 
+> 	`- [Writing more pages](more-pages.md)` 
+> 	`- [Custom navbar](custom-navbar.md)` 
+> 	`- [Cover page](cover.md)`
 >
 > 使用的是markdown的语法
 
