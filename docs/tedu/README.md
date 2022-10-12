@@ -9,7 +9,8 @@
 - [经典问答](_media/tedu/经典问答.pdf ':ignore')
 - [数据库](_media/tedu/数据库.txt ':ignore')
 - [学员用书](_media/tedu/学员用书.pdf ':ignore')
-- [学子商城_ajax_json](_media/tedu/学子商城_ajax_json ':ignore')
+- [学子商城_ajax_json](_media/tedu/学子商城_ajax_json.txt ':ignore')
+
 - [ajax.png](_media/tedu/框架图片/ajax.png ':ignore')
 - [json.png](_media/tedu/框架图片/json.png ':ignore')
 - [mvc.png](_media/tedu/框架图片/mvc.png ':ignore')
