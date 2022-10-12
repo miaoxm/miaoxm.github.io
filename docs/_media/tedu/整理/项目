@@ -1,0 +1,118 @@
+
+创建 Maven Project 项目
+--创建包名为 com.tedu.webserver
+---创建包名为 com.tedu.webserver.core
+----创建class文件 名为：WebServer 
+	定义一个私有属性
+	构造方法{ 端口 }
+
+	服务端启动操作
+	start{ 
+	监听器
+	启动线程
+	 }
+
+	main方法
+
+
+---创建class文件 名为：ClientHandler 用于：线程任务类用于处理
+某个客户端的请求并予以响应
+	
+
+
+
+
+
+
+
+
+//进一步解析请求行中的url部分 
+if(this.url.contains("?")){
+	String[] data = url.split("\\?");
+	requestURI = data[0];
+	//确保url中" ？" 右侧有内容 
+	if(data.length>1){
+		queryString = data[1];
+		data = queryString.split("&");
+		for(String parameter : data){
+			String[] paraArr = parameter.split("=");
+			if(paraArr.length>1){
+`				parameters.put(paraArr[0],paraArr[1]);
+			}else{
+				parameters.put(paraArr[0],"");
+			}
+		}
+	}esle{
+		this.queryString = "";
+	}
+}else{
+	requestURI = this.url;
+}
+
+
+
+————————————————————————————————————————————
+//V10
+1：
+//创建HttpRequest
+	--解析请求行
+		--解析method.url，protoctl
+			--mrethod
+			--url
+				--requestURI：//myweb/reg
+				--queryString//name=xxx&pwd=xxx&...
+				--parameter{name=xxx,pwd=xxx}
+
+			--protoctl
+		--进一步解析url
+	
+	--解析消息头
+		--解析消息头，将所有消息头存入headers这个 Map 中
+			--消息头对应的属性
+	--解析消息正文
+
+  httpRequest对象：
+	url属性
+	requestURI
+	queryString
+	parameter{name=xxx,pwd=xxx}
+	消息头对应的属性
+
+//创建HttpResponse
+	--
+	--
+
+  HttpResponse对象：
+	状态行对应属性
+	int statusCode
+	String statusReason
+
+	响应头对应属性
+	Map headers
+
+	响应正文对应属性
+	File entity
+
+
+
+2：根据request中的requestURI判断是否为业务
+  //是：  
+	--根据requestURI实例化对应的业务处理类XXXServlet并调用service方法
+	  传入request及response对象
+		--XXXServlet的serviet方法：
+		  根据request获取客户端传递过来的数据
+		  并处理。设置response给予响应
+			--设置状态代码request方法：
+				--setStatusCode()
+				- -根据HttpContext通过状态代码获取对应的状态描述
+			--设置响应正文实体文件
+				--response方法：
+				--setEntity() 
+				--根据文件后缀对应 设置响应头信息
+		--响应客户端 response.fliush
+
+ //否：
+	--响应静态资源，案件参见 V7.png的流程
+————————————————————————————————————————————
+ //v11
+使用反射机制，完成Servlet的动态创建

@@ -1,0 +1,1088 @@
+
+--------------------------------------------------------------------------------------------------------------------------------------------第一天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1. 什么是Servlet?  ****经典的面试题****
+sun公司制订的一种用来扩展web服务器功能的组件规范。
+## (1) 扩展web服务器功能
+web服务器只能处理静态资源的请求（即需要事先将html文件及相关的图片等资源准备好），不能够处理动态资源的请求（即需要计算，生成相应的html），所以，需要扩展web服务器的功能。
+Servlet可以扩展web服务器功能，当web服务器收到请求之后，可以调用Servlet来处理动态资源的请求。如下图所示:
+![](servlet.png)
+## (2) 组件规范
+组件是什么?
+符合规范，实现部分功能，并且需要部署到相应的容器里面才能运行的软件模块。
+Servlet是一个组件，需要部署到Servlet容器里面才能运行。
+容器是什么?
+符合规范，提供组件的运行环境的程序。
+apache tomcat就是一个Servlet容器，提供Servlet运行环境（即网络相关的服务）。
+# 2. 如何写一个Servlet?
+	step1. 写一个java类，实现Servlet接口或者继承HttpServlet抽象类。
+	step2.　编译。
+	step3. 打包。
+		即创建一个具有如下结构的文件夹：
+		appname (可自定义) 
+			WEB-INF
+				classes (放.class文件)
+				lib (放.jar文件  可选)
+				web.xml (部署描述文件)
+	step4. 部署。
+		将step3创建好的整个文件夹拷贝到相应的Serlvet容器里面。
+		注:
+			将step3创建好的整个文件夹使用jar命令压缩成".war"结尾的文件，然后再拷贝。
+	step5.　启动Servlet容器，访问Servlet。
+		http://ip:port/appname/url-pattern
+# 3. Servlet是如何运行的?
+比如，在浏览器地址栏输入
+http://localhost:8080/day01/hello，发生了什么?
+	step1.浏览器依据ip和port建立连接。
+	step2.浏览器将请求相关的数据打包（即创建请求数据包）然后发送给servlet容器。
+	step3.servlet容器解析请求数据包，并且将解析到的数据存放到request对象里面，同时，还会创建一个response对象。
+	step4.servlet容器依据请求路径找到对应的servlet的配置,然后容器将servlet实例化。
+	step5.servlet容器调用servlet的service方法。
+	注：
+		会将request和response作为参数传递进来，开发人员可以调用request对象的
+		方法来获得请求数据包里的数据（比如获取请求参数值），也可以将处理结果写到response对象里面。
+	step6.容器从response对象中取出处理结果，然后创建响应数据包并发送给浏览器。
+	step7.浏览器解析响应数据包，生成相应的页面。
+![](s3.png)
+![](servlet2.png)
+# 4.　常见问题
+## (1)404
+	含义：
+		404是一个状态码，表示依据请求路径找不到对应的资源。
+	原因:
+		a.请求路径写错。
+		应该按照 http://ip:port/appname/url-pattern来写。
+		http://localhost:8080/day01/hello
+		b.没有部署或者部署失败。
+## (2)500
+	含义：
+		服务器运行出错。
+	原因:
+		a.没有严格按照规范来写Servlet,比如
+		没有继承HttpServlet，又比如，部署描述文件中的类名写错等等。
+		b.代码不严谨，比如对请求参数没有做检查就做类型转换的处理。
+## (3)405
+	含义:
+		找不到处理方法。
+	原因:
+		容器找不到service方法来处理请求。
+# 5. Servlet输出中文要注意什么?
+## (1)为什么会有乱码?
+out在输出时，默认会使用iso-8859-1来编码。所以，
+对于中文，会产生乱码。
+## (2)如何处理?response.setContentType("text/html;charset=utf-8")
+	response.setContentType(
+				"text/html;charset=utf-8");
+# 练习1：写一个DateServlet，输出当前的系统日期。
+比如，http://localhost:8080/day01-lab/date
+浏览器显示  2018-06-26
+## step1.建maven工程。
+注意：war包。
+![](a1.png)
+##　step2.生成部署描述文件。
+![](a2.png)
+##　step3.指定服务器。
+![](a3.png)
+## step4.添加一个java类。(DateServlet)
+继承HttpServlet,并且override service方法。
+![](a4.png)
+	public class DateServlet extends 
+	HttpServlet{
+	@Override
+	protected void service(
+			HttpServletRequest request,
+			HttpServletResponse response) 
+					throws ServletException,
+					IOException {
+		response.setContentType("text/html");
+		PrintWriter out = 
+				response.getWriter();
+		
+		Date date = new Date();
+		SimpleDateFormat sdf = 
+				new SimpleDateFormat("yyyy-MM-dd");
+		out.println(sdf.format(date));
+		out.close();
+		}
+	}
+##　step5.在web.xml文件里面，配置Servlet。
+    <servlet>
+      <servlet-name>dateServlet</servlet-name>
+      <servlet-class>web.DateServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>dateServlet</servlet-name>
+      <url-pattern>/date</url-pattern>
+    </servlet-mapping>
+## step6.部署并运行。
+![](a5.png)
+# 练习２:
+	写一个BmiServlet，计算一个人的bmi指数，并且
+	依据bmi指数，输出一个人的身体状况:
+	bmi指数　＝　体重(公斤) / 身高(米)/身高(米)
+	如果bmi指数 < 19,过轻。
+	如果bmi指数 > 25,过重。
+	否则，正常。
+	比如http://ip:port/day01-lab/bmi?height=1.2&weight=80
+	输出 你的bmi指数是xxxx,体重过重。
+--------------------------------------------------------------------------------------------------------------------------------------------第二天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1. http协议(了解)
+## (1)什么是http协议?
+	一种网络应用层协议，规定了浏览器与web服务器之间如何通信以及相应的的数据包的结构。
+	注:
+		tcp/ip协议：保证数据可靠的传递。
+		http协议需要利用tcp/ip协议来传递数据包。
+	1)如何通信?
+		step1.建立连接
+		step2.发送请求
+		step3.发送响应
+		step4.关闭连接
+	2)优点
+		服务器可以利用有限的连接为尽可能多的请求服务。
+![](http.png)
+## (2)数据包的结构
+	1)请求数据包
+	a.请求行 (请求类型method 请求资源路径url 协议和版本protocol)
+	b.若干消息头
+		注:
+			消息头是一些键值对，用": "隔开，浏览器与web服务器之间，可以利用消息头来传递一些特定的信息。比如浏览器可以通过发送user-agent消息头来告诉服务器，浏览器的类型和版本。
+	c.实体内容
+		只有当请求类型为post时，实体内容才会有数据。
+	2)响应数据包
+	a.状态行 (协议类型和版本 状态码 状态描述)
+		注:
+			状态码是一个三位数字，表示服务器处理请求的一种状态。
+			200  正常
+			500 系统出错
+			404 依据请求路径找不到对应的资源
+	b.若干消息头
+			服务器也可以发送一些消息头给浏览器，比如，通过发送content-type消息头，告诉浏览器，服务器返回的数据类型。
+	c.实体内容
+			程序的处理结果，浏览器解析出来然后生成相应的的页面。				
+## (3)两种请求方式 
+### 1)get请求
+	a.哪一些情况下，浏览器会发送get请求?
+		情形1: 表单默认的提交方式method="get"。
+		情形2: 直接在浏览器地址栏输入某个地址。
+		情形3: 点击链接。
+	b.特点
+		特点1: 会将请求参数添加到请求资源路径的后面，所以，只能提交少量的数据。
+		注：因为请求行大约只能存放2K左右的数据。
+		特点2: 会将请求参数显示在浏览器地址栏，不安全(因为有一些网络设备，比如路由器会记录请求地址)。
+## 2)post请求
+	a.哪一些情况下，浏览器会发送post请求
+		将表单的method="post"。
+	b.特点
+		特点1:会将求参数添加到实体内容里面，所以可以提交大量的数据。
+		特点2:不会将请求参数显示在浏览器地址栏，相对安全一些。
+		注：
+			不管什么请求，都不会对数据进行加密。
+		所以，对于敏感数据，一定要加密。
+# 2. 如何获得请求参数值
+## (1)方式一
+	String request.getParameter(String paramName);
+	注:
+		如果请求参数名写错，会获得null值。
+		文本输出框、密码输入框，如果不填写任何数据，会获得""。
+## (2)方式二
+	String[] request.getParameterValues(String paramName);
+	注:
+		当有多个请求参数名相同时，使用此方法。
+		多选框，如果一个选项都不选择的话，会获得null值。
+# 3.表单包含有中文参数值，如何处理?
+## (1)为什么会有乱码?
+	表单提交时，浏览器会对表单中的中文参数值进行编码（会使用打开该表单所在页面时的字符集来编码），服务器端默认会使用iso-8859-1来解码,所以会产生乱码。
+## (2)如何处理?
+### 1)post请求
+request.setCharacterEncoding("utf-8");
+![](post.png)
+### 2)get请求
+server.xml文件中63行
+URIEncoding="utf-8"
+![](get.png)
+# 4.访问数据库
+## (1)准备工作
+	step1. 导包 (jdbc驱动,连接池)
+		将jdbc02工程中的pom.xml文件里面的
+		dependencies复制到新工程中的pom.xml文件中。
+	step2. 添加jdbc.properties文件(使用jdbc02
+		工程中的即可)。
+	step3. 添加DBUtils类。（使用jdbc02工程中的即可)。
+	step4. 测试DBUtils类。（保证可以正常获得连接)
+	step5. 建表
+	create table t_user(
+		id int primary key auto_increment,
+		username varchar(50) unique,
+		password varchar(20),
+		email varchar(30)
+	);
+## (2)修改AddUserServlet，使用jdbc访问数据库
+--------------------------------------------------------------------------------------------------------------------------------------------第三天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1. 重定向
+## (1)什么是重定向?
+服务器通知浏览器向一个新的地址发送请求。
+	注:
+		服务器可以通过发送302状态码及一个Location
+	消息头（该消息头的值是一个地址，称之为重定向地址）给浏览器，浏览器收到之后，会立即向重定向地址发送请求。
+![](redirect.png)
+
+## (2)如何重定向?
+response.sendRedirect(String url);
+	注:
+		url就是重定向地址。
+## (3)特点
+a.重定向地址是任意的。
+b.重定向之后，浏览器地址栏的地址会发生变化。
+## (4)细节
+a.容器在重定向之前，会先清空response对象上存放的
+所有数据。
+b.重定向之后的代码仍然会执行。
+练习：
+写一个Servlet,删除指定用户,返回用户列表。
+比如:
+http://localhost:8080/day02-lab/del?id=1
+会删除id为1的用户，然后显示用户列表。
+# 2. DAO(扩展)
+## (1)DAO是什么?
+封装了数据访问逻辑的对象。
+注:
+	DAO是Data Access Object首字母的缩写形式，即 数据访问对象。
+## (2)如何写一个DAO?
+	step1. 写一个java类，用于存放从数据库查询出来的记录。
+	step2. 写一个DAO类，封装数据访问逻辑。
+--------------------------------------------------------------------------------------------------------------------------------------------第四天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1. jsp是什么?
+	sun公司制订的一种服务器端的动态页面技术规范。
+	注:
+	a.虽然使用servlet也可以生成动态页面，但是过于繁琐(需要大量使用out.println语句)，并且不利于页面的维护(需要修改java源代码),所以sun才制订了jsp规范，目的是为了更简洁、更方便地生成动态页面。
+	b.jsp是一个以.jsp为后缀的文件，该文件的内容主要是html和少量的java代码。容器会将jsp文件转换成一个servlet然后执行。
+	c.jsp的本质就是一个servlet!
+# 2.如何写一个jsp文件?
+## (1)step1. 创建一个以.jsp为后缀的文件。
+## (2)step2. 在该文件里面，可以添加如下内容:
+### 1)html
+	直接写即可。
+### 2)java代码
+### a. java代码片断
+	<% java代码  %>
+### b. jsp表达式
+	<%= java表达式 %>	
+### c. jsp声明 (a1.jsp)
+	<%! 声明一个变量或者方法 %>
+### 3)隐含对象 *****面试*****
+	a.什么是隐含对象?
+		在jsp文件里面可以直接使用的对象，比如out,
+					request,response。
+		后面学到的两个隐含对象 session,application(上下文)
+		补充的四个：
+			page(jsp实例本身，jsp对应的Servlet实例，从来不用),
+			config(a2.jsp):ServletConfig
+			exception(a3.jsp,a4.jsp):用来获得jsp异常信息的一个简短的描述。
+				注：只有当isErrorPage属性值为true时才能使用该隐含对象。
+			pageContext(a5.jsp,a6.jsp):
+			容器会为每一个jsp实例创建唯一的一个符合PageContext接口要求的对象(pageContext  页面上下文)
+			特点：
+				唯一性：一个jsp实例对应一个上下文。
+				持久性：只要jsp实例还在，上下文就会一直存在。
+			作用：
+				作用1：绑定数据。
+					注：绑定在pageContext上的数据只有对应的jsp实例才能够访问。
+				作用2：获得其它所有隐含对象		
+	b.为什么可以直接使用这些隐含对象?
+	因为容器会添加获得这些隐含对象的代码。
+### 4)指令
+	a.什么是指令?
+	告诉容器，在将jsp转换成servlet类的时候，做一些额外的处理，比如导包。
+	b.语法
+	<%@ 指令名 属性=值  %>
+	c.page指令
+		import属性：用于导包，比如
+			<%@ page import="java.util.*"%>
+			注：多个包使用","隔开。
+		contentType属性：用于设置response.setContentType方法的参数值。
+		pageEncoding属性:告诉容器，在读取jsp文件的内容时，使用指定的字符集来解码。
+			![](a2.png)
+		errorPage属性：指定一个异常处理页面
+		isErrorPage属性:缺省值是false，当值为true时，才能使用exception隐含对象。
+		session属性(a7.jsp)：缺省值是true,当值为false时，不能使用session隐含对象。
+	d. include指令
+		file属性：指定被包含的文件名。比如,
+		<%@ include file="header.jsp"%>
+	e.taglib指令
+		注:
+		容器在将jsp转换成java文件时，会将指定的文件的
+		内容插入到该指令所在的位置。
+# 3. jsp是如何执行的?
+## (1)阶段一
+容器将.jsp文件转换成一个.java文件(即Servlet类)
+html ---->  在service方法里面，使用out.write	输出。
+<%   %> ---> 在service方法里面，照搬。
+<%=  %> --->service方法里，使用out.print()输出
+<%!   %> ----->增加新的属性或者方法。
+![](a3.png)	
+## (2)阶段二
+容器再将该Servlet编译、实例化、调用。
+练习： 写一个jsp,以表格的形式显示所有用户信息(用户列表）
+练习2：添加addUser.jsp
+--------------------------------------------------------------------------------------------------------------------------------------------第五天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1. 转发
+## (1)什么是转发?
+一个web组件将未完成的处理交给另外一个web组件继续做。
+注:
+	a.web组件指的是servlet或者是jsp。
+	b.常见的情况是一个servlet获得数据，然后将这些数据交给一个jsp来展现。
+RequestDispatcher是通知容器去调用另外一个web组件的媒介
+![](forward.png)
+## (2)如何转发?
+step1.	绑订数据到request对象上。
+	request.setAttribute(String name,Object obj);
+注:
+	name:绑订名
+	obj:绑定值
+	Object request.getAttribute(String name);
+step2. 获得转发器。
+	RequestDispatcher rd = 
+		request.getRequestDispatcher(String uri);
+注:
+	RequestDispatcher是一个接口。
+	uri是转发的目的地，通常是一个jsp。
+	转发的本质其实就是一个web组件通知容器去调用另外一个web组件。
+step3. 转发。
+	rd.forward(request,response);
+## (3)特点
+	a.转发之后，浏览器地址栏的地址不变。
+	b.转发的目的地必须是同一个web应用中的某个地址。
+# 2. 转发与重定向的区别
+## (1)能否共享request对象?
+	转发可以，而重定向不行。
+注:
+	a.当容器收到请求之后，会立即创建request和
+	response对象，当响应发送完毕，容器会立即删除这
+	两个对象。也就是说，request和response对象的生存
+	时间是一次请求与响应期间存在。
+	b.转发是一次请求，而重定向是两次请求。
+## (2)地址栏的地址有无变化?
+	转发不变，重定向会变。
+## (3)目的地有无限制?
+	转发有限制，重定向没有。
+练习：登录
+流程：
+	用户填写用户名和密码并提交，服务器端依据用户名和密码查询数据库，如果有匹配的记录，则登录成功，跳转到用户列表;否则，登录失败，跳转到登录页面，并提示用户“用户名或密码错误"。
+提示:
+	step1.添加login.jsp
+	step2.测试login.jsp
+	step3.在UserDAO类里面，添加一个查询方法。
+		public User find(String uname);
+	step4.添加LoginServlet。
+		读取用户名和密码，调用UserDAO的方法来查询数据库。如果有匹配的记录，则重定向到用户列表，否则，转发到登录页面。
+练习：
+添加用户时，如果用户名已经存在，则提示用户"用户名已经存在"。
+
+--------------------------------------------------------------------------------------------------------------------------------------------第六天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1.什么是状态管理?
+	将浏览器与web服务器之间多次交互当作一个整体来处理，并且将多次交互所涉及的数据(即状态)保存下来。
+# 2.如何进行状态管理?
+	方式一 将状态保存在浏览器端(Cookie)。
+	方式二 将状态保存在服务器端(Session)。 
+# 3.Cookie
+## (1)什么是Cookie?
+	服务器临时存放在浏览器端的少量数据。
+## (2)工作原理
+	当浏览器访问服务器时，服务器将少量数据以set-cookie消息头的形式发送给浏览器，浏览器会将这些数据保存下来。
+	当浏览器再次访问服务器时，浏览器会将之前保存的这些数据以cookie消息头的形式发送给服务器。
+![](cookie.png)
+## (3)添加Cookie
+	Cookie c = new Cookie(String name,String value);
+	response.addCookie(c);
+## (4)读取Cookie
+	Cookie[] request.getCookies();
+	注:
+		a. Cookie对象封装了cookie中的数据。
+		b. 该方法有可能返回null。
+	String cookie.getName();
+	String cookie.getValue();
+## (5)Cookie的编码问题
+	a.Cookie只能保存合法的ascii字符，对于中文，需要转换成对应的ascii字符的形式。
+	String URLEncoder.encode(String str,String charset);
+	String URLDecoder.decode(String str,String charset);
+	b.建议，在添加cookie时，都统一编码处理。
+## (6)Cookie的生存时间
+	a.默认情况下，浏览器会将Cookie保存在内存里面，只要浏览器不关闭，Cookie就会一直存在。如果浏览器关闭，Cookie就会被删除。
+	b.可以调用setMaxAge方法来设置Cookie的生存时间。
+		cookie.setMaxAge(int seconds);
+		注:
+			单位是秒 
+			值可以>0
+				浏览器会将cookie保存在硬盘上，
+				如果超过指定的时间，则浏览器会
+				删除该cookie。
+				<0
+				缺省值(浏览器会将cookie保存在内存里面)。
+				=0
+				删除cookie。比如要删除一个名称为
+				username的cookie:
+					Cookie c = new Cookie("username","");
+					c.setMaxAge(0);
+					response.addCookie(c);
+## (7)cookie的路径问题
+	a.什么是Cookie的路径问题?
+	浏览器再向服务器上的某个地址发请求时，会比较该地址是否符合Cookie的路径的要求，只有符合条件的Cookie才会被发送。
+	b.Cookie的默认路径
+	 等于添加该Cookie的web组件的路径，比如
+	/day06/biz01/addCookie1.jsp,则该jsp添加的cookie,默认路径是"/day06/biz01"。
+	c.匹配规则
+	 只有当请求地址等于cookie的路径或者是其子路径时，浏览器才会将该cookie发送给服务器。
+	比如，cookie的路径是"/day06/biz01"，则:
+	/day06/findCookie1.jsp   no
+	/day06/biz01/findCookie2.jsp  yes
+	/day06/biz01/sub/findCookie3.jsp yes
+
+	d.可以调用setPath方法来设置cookie的路径。
+		Cookie.setPath(String path);
+	![](path.png)
+练习:
+	写一个Servlet,先查看有没有一个名称为"cart"的cookie,如果有，则显示该cookie的值;如果没有，则添加该cookie。
+
+	统计用户访问某个应用的次数。
+	![](count.png)
+## (8)cookie的限制
+	a.可能被用户禁止。
+	b.不安全
+		对于敏感数据要以cookie方式保存在浏览器端，一定要加密处理。
+	c.cookie只能保存少量数据
+		大约在几kb左右。
+	d.cookie的数据也有限制
+		大约是几百个。
+	e.只能存放字符串	
+--------------------------------------------------------------------------------------------------------------------------------------------第七天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1.session(会话)是什么?
+	服务器为了保存用户状态而创建的一个特殊的对象。
+注:(原理)
+	当浏览器访问服务器时，服务器会创建一个session对象(该对象有一个唯一的id,一般称之为sessionId),接下来，服务器会将sessionId以cookie的方式发送给浏览器;
+	当浏览器再次访问服务器时，会将sessionId发送过来，服务器就可以利用sessionId找到对应的session对象。
+
+# 2.如何获得session对象?
+## (1)方式一
+	HttpSession s = request.getSession(boolean flag);
+	注:
+		flag为true时:
+		先查看请求当中是否有sessionId,如果没有，则创建一个符合HttpSession接口要求的对象(即session对象);
+		如果有sessionId,则依据该sessionId查找
+		对应的session对象,如果找到了，则返回该对象，如果找不到，则创建一个新的session对象。
+		
+		flag为false时:
+		先查看请求当中是否有sessionId,如果没有,
+		返回null;
+		如果有sessionId,则依据该sessionId查找
+		对应的session对象,如果找到了，则返回该对象，如果找不到,返回null。
+![](session.png)
+## (2)方式二
+	HttpSession s = request.getSession();
+	等价于 request.getSession(true);
+# 3.常用方法
+	String  session.getId();
+	session.setAttribute(String name,Object obj);
+	Object session.getAttribute(String name);
+	session.removeAttribute(String name);
+![](count.png)
+# 4.session超时
+	a.什么是session超时?
+	服务器会将空闲时间过长的session对象删除掉。
+	目的是为了节省内存空间。
+	b.缺省的超时时间，大部分服务器默认是30分钟。
+	c.可以修改超时时间长度。
+		比如，修改tomcat的web.xml文件
+	<session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+		
+	d.setMaxInactiveInterval(int seconds)
+	 设置两次请求之间的最大间隔时间，如果超过这个间隔时间，session对象会被删除。
+# 5.删除session对象
+	session.invalidate();
+# 6.session验证
+	step1.登录成功之后，在session对象上绑订相关数据。比如:
+		session.setAttribute("user",user);
+	step2.当用户访问需要保护的资源(比如，访问用户列表),则进行session验证:
+		Object obj = session.getAttribute("user");
+		if(obj == null){
+			//没有登录
+			response.sendRedirect("login.jsp");
+		}
+![](login.png)
+# 7.比较session和cookie
+	session相对于cookie,优点是存放更多的数据,
+	支持更丰富的数据类型,更安全;缺点是可能会占用过多的内存空间。
+# 8.过滤器
+## (1)过滤器是什么?
+	Servlet规范当中定义的一种特殊的组件，用来拦截Servlet容器的调用过程。
+	注:
+		当请求到达容器之后，如果有过滤器的话，容器会先调用过滤器。
+## (2)如何写过滤器。
+	step1.写一个java类，实现Filter接口。
+	step2.在doFilter方法里面，编写相应的拦截处理逻辑。
+	step3.配置过滤器(web.xml)。
+![](filter.png)
+--------------------------------------------------------------------------------------------------------------------------------------------第八天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1.过滤器
+## (1)过滤器是什么?
+	Servlet规范当中定义的一种特殊的组件，用来拦截Servlet容器的调用过程。
+	注:
+		当请求到达容器之后，如果有过滤器的话，容器会先调用过滤器。
+![](filter.png)
+## (2)如何写过滤器。
+	step1.写一个java类，实现Filter接口。
+	step2.在doFilter方法里面，编写相应的拦截处理逻辑。
+	step3.配置过滤器(web.xml)。
+## (3)初始化参数
+	<init-param>
+	  <param-name>illegal</param-name>
+	  <param-value>猫</param-value>
+	</init-param>
+	调用FilterConfig对象的方法来读取初始化参数
+	String illegal = config.getInitParameter("illegal");
+## (4)过滤器的优先级
+	当有多个过滤器都满足拦截的要求，则容器依据配置的先后顺序来执行。
+## (5)过滤器的优点 *****面试*****
+	a.可以将多个web组件相同的处理逻辑集中写在过滤器里面，方便代码的维护。
+	b.可以在不修改源有程序代码的基础上，增加一些新的功能。
+
+练习:写一个过滤器，检查评论的字数，如果超过
+指定的字数(使用初始化参数来配置)，则提示
+“评论的字数过多"。
+# 2. Servlet的生命周期
+## (1)什么是Servlet的生命周期?
+	容器如何创建Servlet实例,如何对其进行初始化处理，如果调用其方法来处理请求，以及如何销毁其实例的整个过程。
+![](life.png)
+## (2)分成哪几个阶段?
+	1)实例化
+	  a.什么是实例化?
+		容器调用Servlet的构造器，创建Servlet对象。
+	  b.什么时候实例化?
+		情形1:默认情况下，容器收到请求之后，才会创建Servlet实例。
+		注：
+			容器只会创建一个实例！
+		情形2: 容器启动之后，立即创建Servlet实例。
+		注:
+			需要配置load-on-startup参数。
+![](a3.png)	
+	2)初始化
+		a.什么是初始化?
+		容器在实例化之后，会调用Servlet实例的init(ServletConfig config)方法。
+		注：该方法只会执行一次!
+		b.GenericServlet已经提供了init方法的一个简单的实现，所以，我们不写这个方法也可以。
+		c.如果要实现自已的初始化处理逻辑，只需要
+		override GenericSerlvet的init()方法。
+		d.初始化参数
+![](a4.png)
+![](a5.png)
+		
+	3)调用(就绪)
+		a.什么是就绪?
+		容器收到请求之后，会调用Servlet实例的
+		service方法来处理请求。
+		b.HttpServlet的service方法是这样实现的:
+		  依据请求类型调用对应的doXXX方法。
+		  比如 get请求会调用doGet方法，post请求会
+		  调用doPost方法。
+			注:
+				这些doXXX方法只是抛出了一个异常。
+		c.我们写一个servlet,可以override HttpServlet的service方法；或者也可以override doGet方法和doPost方法。
+
+![](service.png)
+
+	4)销毁
+	a.什么是销毁?
+		容器在删除Servlet实例之前，会调用该实例的
+		destroy方法。
+		该方法只会调用一次。
+	b.GenericServlet已经实现了destroy方法。
+
+## (3)相关的接口与类(了解)
+	a.Servlet接口
+		init(ServletConfig config);
+		service(ServletRequest req,ServletResponse res);
+		destroy();
+	b.GenericServlet抽象类
+		实现了Servlet接口中的部分方法(init,destroy)
+	c.HttpServlet抽象类
+		继承了GenericServlet，实现了service方法。
+
+#  3.Servlet的线程安全问题
+## (1)为什么说Servlet会有线程安全问题?
+	a.容器只会创建一个Servlet实例。
+	b.容器收到请求之后，会启动一个线程，由该线程
+	来调用Servlet来处理请求。这样一来，就有可能有多个线程同时去调用某个Servlet实例，就有可能发生线程安全问题。
+	比如，这些线程同时去修改该Servlet实例的某个属性。
+![](thread.png)
+## (2)如何解决?
+	使用synchronized对有可能产生线程安全问题的代码加锁。
+	注意，加锁会影响性能。
+练习：
+计算bmi指数。
+  bmi = 体重(公斤) /身高 (米)/身高
+  bmi < min 过轻
+  bmi > max 过重
+  否则 正常
+  min和max要配置成初始化参数。
+--------------------------------------------------------------------------------------------------------------------------------------------第九天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1.容器如何处理请求资源路径?
+比如,在浏览器地址栏输入http://ip:port/day09/abc.html
+step1. 容器默认会认为访问的是一个servlet,会从web.xml文件中查找是否存在对应的servlet。
+		三种匹配方式:
+		精确匹配:
+		<url-pattern>/abc.html</url-pattern>
+		通配符匹配:
+		 	使用 * 匹配零个或者多个任意的字符。
+		<url-pattern>/*</url-pattern>
+		<url-pattern>/demo/*</url-pattern>
+		后缀匹配:
+			使用 *.开头，后接一个后缀。
+		<url-pattern>*.do</url-pattern>
+		 匹配所有以.do结尾的请求。
+step2.如果没有找到匹配的servlet,则查找对应位置的文件。
+# 2.如何让一个Servlet处理多种请求?
+step1.使用后缀匹配。
+![](a1.png)
+step2.分析请求资源路径，然后进行相应的的处理。
+![](a2.png)
+# 3.路径问题
+## (1)什么是路径问题?
+链接、表单提交、重定向及转发如何填写对应的路径。
+## (2)相对路径
+不以"/"开头的路径就是相对路径。
+
+## (3)绝对路径
+以"/"开头的路径就是绝对路径。
+## (4)如何写绝对路径
+链接、表单提交、重定向从应用名开始写，转发从应用名之后开始写。
+	注:
+		不要将应用名直接写在路径里面，而应该使用
+		String request.getContextPath()来获得实际部署时的应用名。
+# 4. Servlet上下文
+## (1)什么是Servlet上下文?
+容器启动之后，会为每一个web应用都会创建一个符合ServletContext接口要求的对象。该对象我们一般称之
+为Servlet上下文。
+	特点:
+	a.唯一性:一个web应用对应一个Servlet上下文。
+	b.持久性:只要容器没有关闭，应用没有被删除，则
+	Servlet上下文会一直存在。
+![](sc.png)
+
+## (2)如何获得Servlet上下文?
+	GenericServlet,FilterConfig,
+	ServletConfig,HttpSession都提供了一个方法
+	getServletContext方法。
+## (3)作用
+###　1)绑订数据
+	setAttribute、getAttribute、removeAttribute
+	request,session,上下文都提供了绑订数据相关的方法，区别是什么?
+	区别1:
+		从生存的时间长度来看，request < session < Servlet上下文。
+		在满足使用条件的情况下，优先使用生命周期短的。
+		注：这样可以节省内存空间。
+	区别2:
+![](sc2.png)
+### 2)读取全局的初始化参数
+	a.什么是全局的初始化参数?
+	可以被同一个应用中所有的组件都能访问到的初始化参数。
+	b.如何配置?
+![](s1.png)
+![](s2.png)
+--------------------------------------------------------------------------------------------------------------------------------------------第十天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1. 监听器
+## (1)什么是监听器?
+Servlet规范当中定义的一种特殊的组件，用于监听Servlet容器产生的事件并进行相应的的处理。
+注:
+	容器产生的事件主要有两大类:
+	第一类: 生命周期相关的事件，指的是容器创建了或者销毁了request、session、Servlet上下文时产生的事件。
+	第二类:绑订数据相关的事件，指的是调用了request、session、Servlet上下文的setAttribute和removeAttribute时产生的事件。
+## (2)如何写一个监听器?
+step1.写一个java类，实现相应的的监听器接口。
+注:
+	具体实现哪个接口，要看要监听的事件类型是什么，比如，要监听session对象的创建和销毁，就需要实现HttpSessionListener接口。
+step2.在监听器接口方法当中，实现相应的的监听处理逻辑。
+step3.配置监听器。(web.xml)
+## (3)统计在线人数
+![](count.png)
+练习: (扩展)
+实现一个简单的web缓存	
+![](s1.png)
+--------------------------------------------------------------------------------------------------------------------------------------------第十一天---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 1. Servlet基础
+## (1)什么是Servlet?
+## (2)如何写一个Servlet?
+## (3)Servlet是如何运行的?
+## (4)http协议(了解)
+	a.什么是http协议?
+	b.特点
+	c.数据包的结构
+	d.消息头，状态码
+# 2. Servlet核心
+## (1)如何读取请求参数值?
+## (2)表单包含有中文参数值，如何处理?
+## (3)Servlet输出中文，如何处理?
+## (4)容器如何处理请求资源路径?
+## (5)如何让一个Servlet处理多种请求?
+## (6)ServletContext(上下文)
+	a.什么是Servlet上下文?
+	b.如何获得Servlet上下文?
+	c.特点
+	d.作用
+## (7)Servlet线程安全问题
+## (8)Servlet生命周期
+	
+	a.什么是Servlet的生命周期?
+	b.分成哪几个阶段?
+	c.相关的接口与类
+
+## (9)转发与重定向
+
+	a.什么是重定向?
+	b.如何重定向?
+	c.重定向的特点
+	d.什么是转发?
+	e.如何转发?
+	f.转发的特点
+	g.转发与重定向的区别
+
+## (10)路径问题
+
+# 3. 状态管理
+## (1)什么是状态管理?
+## (2)如何进行状态管理?
+## (3)Cookie
+	
+	a.什么是Cookie?
+	b.工作原理(set-cookie,cookie)
+	c.如何添加Cookie?
+	d.添加Cookie时需要注意的三个问题(编码问题、生存时间、路径问题)。
+	e.如何读取Cookie?
+	f.Cookie有哪些限制?
+
+## (4)Session
+
+	a.什么是Session?
+	b.Session工作原理
+	c.如何获得Session?
+	d.常用方法
+	e.Session超时
+	f.删除Session
+	g.比较Session和Cookie
+
+# 4. 数据库访问
+
+	a.DAO
+	b.处理异常
+	
+# 5. 过滤器与监听器
+	
+	a.什么是过滤器?
+	b.如何写一个过滤器?
+	c.过滤器的优先级?
+	d.初始化参数
+	e.过滤器的优点
+	f.什么是监听器?
+	g.如何写一个监听器?
+
+
+# 6. 案例
+	a.用户管理
+	b.登录
+	c.session验证
+
+
+
+# jsp基础
+## (1)jsp是什么?
+
+	sun公司制订的一种服务器端的动态页面技术规范。
+	jsp是一个以.jsp为后缀的文件，容器将这个文件转换成一个servlet然后执行。
+
+## (2)如何写一个jsp?
+### 1)html(css,js)
+
+	直接写即可
+
+### 2)java代码
+	
+	a.java代码片断
+	<%  java代码  %>
+	b. jsp表达式
+	<%= java表达式 %>
+	c. jsp声明    (a1.jsp)
+	<%! 声明一个变量或者方法 %>
+
+### 3)隐含对象
+	
+	a.什么是隐含对象?
+	直接可以使用的对象
+	b.为什么可以直接使用这些隐含对象?
+	容器会自动添加获得这些对象的代码。
+	c.有哪些隐含对象?
+		out,request,response
+		session,application
+		page: jsp实例本身。
+			注: jsp对应的Servlet实例。
+		config(a2.jsp): ServletConfig
+
+		exception(a3.jsp,a4.jsp):用来获得
+			jsp异常信息的一个简短的描述。
+		   注： 只有当isErrorPage属性值为true时才能使用该隐含对象。
+
+		pageContext(a5.jsp,a6.jsp):
+			容器会为每一个jsp实例创建唯一的一个符合PageContext接口要求的对象(pageContext 页面上下文)。
+			特点:
+				唯一性：一个jsp实例对应一个上下文。
+				持久性:只要jsp实例还在，上下文就会一直存在。
+			作用1:绑订数据。
+				注: 绑订在pageContext上的数据只有对应的jsp实例能够访问。
+			作用2:获得其它所有隐含对象。
+
+### 4)指令
+	
+	a.什么是指令?
+	  通过指令，可以告诉容器，在将jsp转换成Servlet时，做一些额外的处理。比如导包。
+	b.语法
+	  <%@ 指令名  属性=值  %>
+	c.page指令
+		import属性：导包。
+		pageEncoding属性：设置jsp文件的编码。
+		contentType属性：response.setContentType方法的参数值。
+		errorPage属性:
+			指定一个异常处理页面。
+			注：当jsp运行发生了异常，容器会调用异常处理页面。
+		isErrorPage属性：
+			缺省值是false,当值为true时，才能使用exception隐含对象。
+		session属性:(a7.jsp)
+			缺省值是true,当值为false时，不能够使用session隐含对象。
+
+	d.include指令
+		file属性：指定被包含的文件名。
+
+	e.taglib指令	
+
+## 5)注释 (a8.jsp)
+	
+	a. <!-- 注释内容 --> 
+		如果注释的内容是java代码，则java代码会执行。
+	b. <%-- 注释内容 --%>
+		如果注释的内容是java代码，则java代码不会执行。	
+
+![](s2.png)
+
+## (3)jsp是如何执行的?
+### 1)容器要将.jsp文件转换成.java(Servlet)
+
+	html(css,js) ----> service方法里，使用	out.write输出。
+	<%    %>    ------> service方法里，照搬。
+	<%=   %> 	-----> service方法里，使用out.print输出。
+	<%!   %>    -----> 增加新的属性或者方法。
+
+### 2)容器再调用Servlet
+
+
+
+# jsp标签和el表达式
+## (1)jsp标签是什么?
+	sun公司制订的一种用来替换jsp中的java代码的技术规范，jsp标签语法类似于html(有属性，有开始标记、结束标记、有标签体)。
+	优点:
+		a.易维护
+		在jsp文件中直接写java代码，不利于jsp文件的维护(比如，将jsp交给美工去修改就不方便)，用jsp标签代替java代码之后，jsp文件就很容易维护了。
+		b.易复用
+		jsp标签可以重用。
+## (2)el表达式是什么?
+	是一套简单的运算规则，用于给jsp标签的属性赋值。
+	也可以脱离jsp标签直接使用。
+## (3)el表达式的用法
+### 1)读取bean的属性  (e1.jsp)
+	注:
+		如果一个java类，满足如下几个条件，可以称之为这是一个javabean。
+		public class
+		public 构造器
+		Serializable接口
+		属性
+		get/set方法
+
+#### 方式一   
+	${user.username} 
+		执行过程: 
+			容器依次从pageContext、request、session、application查找
+			绑订名为"user"的对象,找到之后，调用
+			该对象的"getUsername"方法并输出。
+		优点:
+			会将null转换成""输出。
+			如果依据绑订名找不到对应的对象，不会报空指针异常(不会调对应的get方法)。
+		指定查找的范围:
+			可以使用pageScope、requestScope、sessionScope及applicationScope来指定查找的范围。
+			比如 ${sessionScope.user.username}
+#### 方式二
+	${user['username']}
+		执行过程等价于${user.username}
+		两个特殊用法:
+			[ ]里面允许出现绑订名。
+			[ ]里面允许出现从0开始的下标，用于访问数组中的某个元素。
+### 2)做一些简单的运算 (e2.jsp)
+	注：计算结果可以给jsp标签的属性赋值，也可以直接输出。
+	算术运算: +,-,*,/,%
+		注：只能求和，不能连接字符串。
+	关系运算: >,>=,<,<=,==,!=
+	逻辑运算: &&,||,!
+	empty运算: empty
+		注: 如果一个集合为空，或者是一个空字符串，
+		则运算结果为true。
+## 练习:
+		Employee类(ename,salary,age)，使用el
+	表达式输出各个属性值。
+--------------------------------------------------------------------------------------------------------------------------------------------第十二天---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### 3)读取请求参数值 (e1.jsp)
+	${param.username}等价于
+		request.getParameter("username");
+	${paramValues.interest}等价于
+		request.getParameterValues("interest");
+# jstl (java standard tag lib)
+## (1)jstl是什么?
+	apache开发的一套jsp标签，后来捐献给了sun,sun
+	将其命名为jstl(即java标准标签库)。
+## (2)如何使用?
+	step1.导包。(jstl),配置pom.xml文件
+	step2.使用taglib指令导入要使用的标签。
+	<%@ taglib uri="" prefix=""%>
+		uri属性：指定标签的命名空间。
+		注:
+			命名空间：为了区分同名的元素，在元素名前面添加的一个限定，通常是一个域名（为了避免命名空间也冲突)。
+		prefix属性：命名空间的别名。
+## (3)几个核心标签
+### 1)if标签   (c1.jsp)
+	<c:if test="" var="" scope="">
+		标签体
+	</c:if>
+	a.当test属性值为true时，容器会执行标签体的内容。
+	b.test属性值可以使用el表达式来赋值。
+	c.var属性用来指定一个绑订名。
+	d.scope属性用来指定绑订的范围。scope的值可以是page，request，session，application
+![](c1.png)
+### 2)jsp标签的运行过程
+	容器依据别名(比如"c")找到对应的命名空间(比如
+	"http://java.sun.com/jsp/jstl/core"),然后依据命名空间找到jsp标签的描述文件(比如找到c.tld)，接下来，就可以依据jsp标签名(比如"if")找到对应的标签类(比如"IfTag"),最后调用该标签类的方法。
+### 3)choose标签 (c2.jsp)
+	<c:choose>
+		<c:when test="">
+			标签体
+		</c:when>
+		<c:otherwise>
+		</c:otherwise>
+	</c:choose>
+	a. when可以出现在1次或者多次，相当于一个else if语句。当test属性值为true时，执行标签体的内容。
+	test属性可以使用el表达式来计算。
+	b. otherwise可以出现0次或者1次，表示例外（即最后一个else语句)。
+### 4)forEach标签 (c3.jsp)
+	<c:forEach items="" var="" varStatus="">
+	</c:forEach>
+	a.	用于遍历集合或者数组。
+	b.	items属性用于指定要遍历的集合或者数组，可以使用el表达式来赋值。
+	c. 	var属性用于指定绑订名。
+		注:
+			绑订范围固定是pageContext,该标签每次从集合或者数组中取一个元素，然后绑订到pageContext上。
+	d. varStatus属性用于指定绑订名。
+		注：
+			绑订范围固定是pageContext,绑订值是一个特殊的对象，该对象提供了一些方法，用于获得当前遍历的状态。
+			getIndex方法: 获得当前正在被遍历的元素的下标(从0开始)。varStatus.index就相当于getIndex方法
+			getCount方法:获得正在进行第几次遍历(从1开始)。varStatus.count就相当于getCount方法
+# 练习：
+	将listUser3.jsp中的java代码使用jstl标签加el
+	表达式代替。
+# 自定义标签
+## 编程步骤
+	step1. 写一个java类，继承SimpleTagSupport类。
+	注:
+		jsp标签分为简单标签技术和复杂标签技术，继承
+	SimpleTagSupport类属于简单标签技术。
+	step2. override doTag方法，在该方法里面写处理逻辑。
+	step3. 在.tld文件里描述标签。
+## 标签的执行过程
+	容器依据标签的命名空间找到标签的描述文件，
+	接下来依据标签的名称找到对应的标签类，然后
+	将该类实例化，然后调用该标签类的set方法完
+	成属性的赋值操作，最后调用标签类的doTag方法。
+## 练习
+	写一个jsp标签，按照指定的日期格式输出当前的系统日期。
+	比如:
+		<d:date pattern="yyyy-MM-dd"/>
+--------------------------------------------------------------------------------------------------------------------------------------------第十三天---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# MVC(Model View Controller)
+## 1.什么是MVC?
+是一种软件架构思想，其核心思想是要数据处理与数据展现分开，按照这种思想，可以将一个软件划分成三种不同类型的模块，分别是模型、视图和控制器。
+模型用于数据处理(即业务逻辑)，视图用于数据展现(即表示逻辑)，控制器用于协调模型和视图(视图将请求发送给控制器，由控制器选择对应的模型来处理;模型返回处理结果给控制器，由控制器选择对应的视图来展现处理结果)。
+## 2.如何使用MVC?
+使用Servlet充当控制器，使用jsp充当视图，使用java类充当模型。
+![](mvc.png)
+浏览器发送过来的请求，交给充当控制器的Servlet，依据请求，调用对应的充当模型的java类来处理，处理完成后，返回处理结果，Servlet控制器依据模型返回的处理结果调用对应的充当视图的jsp，视图将要展现的结果相应给浏览器
+## 3.MVC的优点 
+a. 方便测试
+	比如，将业务逻辑写在java类里面，可以直接测试，如果将业务逻辑写在Servlet里面，需要部署整个应用
+	才能测试。
+b. 模型返回的处理结果，可以使用不同的方式来展现。
+c. 方便分工协作。
+## 4.MVC的缺点
+使用MVC,会增加代码量、增加软件设计的难度、相应会增加软件的开发成本。所以，只有一定规模的软件才需要使用MVC.
+# 练习
+将day13-lab中的jsp移到WEB-INF下。
+# 复习java反射、java注解（smartmvc项目中）
+## java反射
+	加载要加载的类：Class clazz = Class.forName(要加载的String类型的类名);
+	将要加载的类进行实例化：Object obj = clazz.newInstance();
+	得到加载类的所有方法：Method[] methods = clazz.getDeclaredMethods();
+	遍历所有的方法:
+		for(Method mh : methods){
+		获得方法名：String mName = mh.getName();
+		调用不带参数的方法：mh.invoke(obj);
+		调用待参数的方法：
+			Object[] params = new Object[]{"balabala"};
+			mh.invoke(obj,params);
+		不管调用的方法是否有参数，以上调用方法的invoke方法的返回值是调用当前方法的返回值，比如，调用的方法是void没有返回值，则返回值是null，如果调用的方法返回一个String类型的返回值，则返回值是方法return回来的值。
+		}
+## java注解（reflect包中Test类和ReuestMapping类）
+	新建一个annotation类
+	@Retention(RetentionPolicy.RUNTIME)//@Retention是系统自带的元注解(用来描述其它注解的注解)
+	//java注解默认只保留在源代码里面，一旦编译成字节码文件，就会丢失。可以使用RetentionPolicy指定注解的生存时间，这儿指定注解的保留到运行时。
+	public @interface Test{
+		public String value();//value是注解的属性。如果属性名为value，在赋值时，可以不用写属性名
+	}
+![](a1.png)
+![](a2.png)
+![](a3.png)
+### java注解的作用
+	java注解的最大好处是，不影响原有代码的执行
+	java注解的作用，依赖于你怎么利用java反射去处理这个注解。
+### java注解的执行过程
+	注解(就是一个java类，.java文件)，经过编译、实例化，形成java对象注解。
+	默认情况下，编译之后，注解会被抹掉。可以在注解前添加@Retention(RetentionPolicy.RUNTIME)，这样在运行时，注解还在。
+	形成java对象注解的过程中，依赖于java反射，读取注解信息，对方法的执行施加影响
+
+	获得Test类的注解
+	Test test = mh.getAnnotation(Test.class);
+	//读取@Test注解的属性值
+	String value = test.value();
+# 写一个注解@RequestMapping
+该注解带有一个属性value,
+利用java反射，读取该注解的属性值。
+--------------------------------------------------------------------------------------------------------------------------------------------第十四天---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 实现一个简单的MVC框架(smartmvc)
+## 目标:
+	实现一个通用的控制器，开发人员在使用该框架时，
+	只需要写模型和视图，并且将请求路径与模型的对
+	应关系以及处理结果与视图的对应关系写到配置文件
+	或者java注解里面即可。
+## 思路:
+![](smartmvc.png)
+## 架构:
+![](smartmvc2.png)
+# 如何使用smartmvc?
+    step1. 导包。(dom4j)
+    step2. 将smartmvc的源代码复制过来。
+    step3. 将配置文件(config.xml)添加到resource下。
+    step4. 配置DispatcherServlet。
+    step5. 添加jsp文件。
+    step6. 添加Controller（处理器)。
+    step7. 在config.xml当中，添加Controller的配置。
+    

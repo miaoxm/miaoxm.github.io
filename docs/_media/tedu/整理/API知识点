@@ -1,0 +1,217 @@
+ SE  day01:   // 关防火墙命令 systemctl stop firewalld.service    firewall-cmd --state
+
+编译器认可JVM不认可：自动拆装箱--for each--泛型       
+
+@author Lee Boynton代表作者
+@version 1.2.1代表版本号
+@see import java.uilt.Arrays代表参见
+@since JDK1.8代表JDK版本
+
+   1.字符常量池重用现象字面量字符串创建后其引用会保存到 
+     字符串常量池中，当再次使用相同字符串
+     字面量时候，会使用上一次的字符串引用！
+
+   2.字面量 或 常量的连接结果，也会
+     重用字符串常量池在中的对象
+
+   3.字符串变量的连接结果不会常量池优化
+
+  1) String 的长度是length()方法
+   2) 数组的长度是 length 属性
+  3) string 提供了charAt方法，来获取指定位置上的字符
+——--——--—— String 方法 ——--——--—— 
+1): str.length() 字符串 长度
+2): str.indexOf() 检查字符串中字符/字符串出现的位置
+3): str.lastIndexOf 从后向前搜索
+4): str.substring(起始位置，结束位置) 截取一部分 为 子字符串
+5): str.startsWith() 从前判断
+6): str.endsWith() 从后判断
+7): str.trim() 去除字符串两端空白
+8): str.charAt()  用于返回字符串指定位置的字符。
+
+StringBuilder str = new StringBuilder();
+11): str.append() 追加字符串
+12): str.insert(开始位置，添加的字符串) 插入字符串
+13): str.delete(开始位置，结束位置) 删除字符串
+14): str.replace()开始位置，结束位置，替换的字符串)  替换字符串
+15): str.reverse() 字符串反转
+
+——--——--—— 正则表达式 ——--——--—— 
+.  ：任意一个字符
+\d :任意一个数字字符，相当于【0-9】
+\w :单词字符，相当于【a-zA-Z_0-9】
+\s :空白字符，相当于【\t\n\xOB\f\r】
+\D :非数组字符
+\W :非单词字符
+\S :非空白字符
+
+X? ： 表示0个或1个X
+X* ： 表示0个或任意多个X
+X+ ： 表示1个到任意多个X（大于等于1个X）
+X{n}: 表示n个X
+X{n,}:表示n个到任意多个X（大于等于n个X）
+X{n,m}:表示n个到m个X
+
+——--——--—— 正则表达式 ——--——--—— 
+
+——--——--—— MatchesDeom.java ——--——--——  
+boolean matches(String regex)
+使用给定的正则表达式验证当前字符串是否满足格式要求
+需要注意，给定的正则表达式无论是否添加边界符（^$）
+都是做全匹配验证
+
+——--——--—— ReplaceAllDemo.java ——--——--—— 
+String replaceAll(String regex,String str)
+将当前字符串中满足正则表达式的部分替换为给定内容
+
+——--——--—— SplitDemo.java ——--——--——
+String[] split(String regex)
+出来的内容存入字符串数组并返回
+ 图片重命名
+str = System.currentTimeMillis() + "." + image[1];
+
+Object 常用重写方法: Point.java   TextPoint.java
+
+toString() 
+
+equals()
+
+——--——--—— 包装类 ——--——--—— 
+int java.lang.Integer
+char java.lang.character
+
+File   ：
+
+File file = new File("./demo.txt"); 相对目录
+
+file.getName();  获取名字
+
+file.length(); 长度
+
+boolean file.canRead(); 是否可读
+
+boolean file.canWrite(); 是否可写
+
+boolean file.isHidden();是否隐藏
+
+boolean file.exists() 判断文件/目录(文件夹)是否存在
+
+file.createNewFile(); 创建文件
+
+dir.mkdir(); 创建目录  +s创建子项
+
+File[] file = file.listFiles(); 获取当前所有子项
+
+boolean isFile() 判断当前File表示的是否为文件
+
+boolean isDirectory() 判断当前File表示的是否为目录
+
+file.delete();  删除文件/目录   目录文件不为空无法删除
+
+ 文件操作 RandomAccessFile    raf:
+
+r:只读模式   rw：读写模式
+
+int read() //从文件中读取一个字节，并以int形式返回  若返回值为-1则表示读取到了文件末尾。
+
+doe.write(d);  拷贝一个文件
+
+int read(byte[] data ) 一次性读取给定的字节数组总长度的字节量
+
+void write(byte[] data)  一次性将给定的字节数组中所有字节写入文件("低八位")
+
+void write(byte[] data,int offset,int len)  将给定数组中从下标offset处的连接len个字节
+
+String(byte[] data)   按照系统默认字符集将字节数组内容转为字符串
+
+String(byte[] data,String csn)  按照给定字符集将字节数组内容转换为字符串
+
+String(byte[] data,int offset,int len,String csn)  将给定字节数组中从下标offset处的连续len个
+								  字节按照给定字符集转换为对应字符串
+
+byte[] getBytes() 按照系统默认字符集转换（不推荐，存在平台差异）
+
+byte[] getBytes(String csn)  按照给定的字符集转换，字符集的名字不区分大小写
+
+wtiteInt(int d)  一次性将给定的int值对型的四个字节全部写出
+
+long pos = raf.getFilePointer();获取指针位置
+
+void seek(long pos) 将指针移动到指定位置
+
+——--——--—— IO ——--——--——
+BufferedOutputStream //缓冲流的缓冲区操作
+
+bos.flush();  //强制将当前缓冲区数据写出  bos.close(); //缓冲流close方法时会flush
+
+BufferedReader br = new BufferedReader(
+	new InputStreamReader(
+	new FileInputStream("src/IO/BufferedReaderDemo.java"))  将当前源程序读取出来并输出到控制台
+String readLine()连续读取若干字节，直到读取到换行符为止，注意，返回的字符串中不含最后
+                      若返回值为null,则表示末尾读取到的换行符.
+
+BufferedReader br = new BufferedReader(
+			new InputStreamReader(System.in)
+		);                                                  按行获取键盘输入的内容
+
+PrintWriter(String path)   向文本文件pw.txt中写出两行字符串
+PrintWriter(File file) PW直接提供了向文件中写入字符串的构造 方法
+pw.println()  将()写入到某个文件中
+
+——--——--—— 异常处理 ——--——--——
+try {}catch(Exception e) {}  异常常用方法               preson.java 使用当前类测试异常的抛出
+
+try {}catch(Exception e) {}finally {} finally块
+     finally可以保证只要程序运行到try当中,那么无论try当中的代码片段是否出现异常
+    ,finally块里面的代码都必然执行.  通常把释放资源等操作放在finally中,比如流的关闭.
+
+try(){}catch(Exception e) {}JDK1.7之后推出了一个新的特性:自动关闭
+
+class IllegalAgeException extends Exception 自定义异常,通常用于描述业务逻辑错误
+
+
+
+——--——--—— 多线程 ——--——--——
+Static Thread currentThread()   该方法可以获取运行这个方法的线程 用法：Thread t = Thread.currentThread();
+
+void setDaemon(boolean on)  当参数为true时,线程变为守护线程.  用法：jreak.setDaemon(true);
+
+InfoDemo  查看线程信息的相关方法
+
+t.setPriority(Thread.MAX_PRIORITY);//   线程的优先级
+
+static void sleep(long ms)  当一个线程执行sleep方法后就会进入阻塞状态指定
+     的毫秒,超过后线程会自动回到RUNNABLE状态等待再次并发运行. 用法：Thread.sleep(100000);
+
+——--——--—— 查看线程信息的相关方法 ——--——--——
+long id = main.getId();   获取标示符
+String name = main.getName();获取线程的名字
+int priority = main.getPriority();获取线程的优先级 
+System.out.println("isAlive:"+main.isAlive());//是否活着
+System.out.println("isDaemo:"+main.isDaemon());//是否是守护线程
+System.out.println("isInterrupted:"+main.isInterrupted());//是否中断
+
+//方式一  匿名内部类直接创建Thread
+Thread r1 = new Thread(){   public void run() {
+
+//方法二 匿名内部类创建Runnable,再由线程运行
+Runnable r2 = new Runnable(){  public void run() {
+
+——--——--——同步块——--——--——    
+synchronized(同步监视器){     SyncDemo2
+    需要同步运行的代码片段
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

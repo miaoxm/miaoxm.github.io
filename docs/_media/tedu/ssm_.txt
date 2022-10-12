@@ -1,0 +1,1871 @@
+ssm   s(Spring IOC)  s(Spring-mvc)   m(mybatis)    SSH happer 命名空间
+--------------------------------------------------------------------------------------------------------------------------------------------第一天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#王影
+#wangying@tedu.cn
+#ssm 8天 + 学子商城 14天 = 22天
+#基础
+1.面向对象的三大特征：继承，封装，多态
+2.map集合 key-value
+3.mvc:页面——控制器Servlet——业务层——持久层
+4.servlet容器作用：创建servlet对象，servlet对象的生命周期由servlet容器维护
+#框架：
+1.易于维护
+2.提高程序员的开发效率
+3.把通用的功能事先都做好了（封装） ，利用框架做好的代码，提高开发效率
+4.学习框架：框架规则：执行流程
+#下课时间：整点左右，间隔时间15分钟
+#Spring框架
+1.概念
+	开源，轻量级，简化企业级开发的企业级框架。
+	开源：不收费，发展快；
+	轻量级：体积小，占用内存小。
+	简化企业级：通用的功能做好了。
+2.特点
+	1.简化企业级开发：
+	2.解耦：
+	3.整合第三方框架：mybatis
+#Spring容器（IOC容器）
+1.容器：用来管理bean对象(用来装东西)。
+2.Spring容器：用来管理bean对象的容器
+3.bean：能创建对象的类，在Spring中都叫bean
+4.实例化bean
+开发步骤：
+1)创建工程
+2）导包
+	spring-webmvc
+	junit
+3)配置文件 application.xml
+	在ftp服务器上下载application.xml文件，把此文件拷贝到resources文件下。
+4）定义一个类HelloSpring
+	public class HelloSpring{
+		public void sayHell(){
+			System.out.println("Hello Spring!");
+		}
+	}
+5)编写配置文件
+     <!-- bean的作用，实例化对象 -->
+     <!-- class表示要实例化的类名 -->
+     <!-- id表示获取bean对象的名称 -->
+    <bean id="hello" class="cn.tedu.demo.HelloSpring">
+    </bean>
+6）初始化容器对象
+	ApplicationContext是接口
+	ClassPathXmlApplicationContext是ApplicationContext实现类；
+	多态
+	ApplicationContext ac = 
+		new ClassPathXmlApplicationContext(
+			"application.xml");
+7）获取bean对象
+	HelloSpring hs = 
+		(HelloSpring)ac.getBean("hello");
+	HelloSpring hs1 =
+		ac.getBean("hello",HelloSpring.class);
+小结：
+1.创建对象功能交给Spring容器处理。
+怎么交给Spring容器：通过配置文件：文件名.xml
+2.使用Spring容器bean对象
+两步：第一步：获取容器对象；第二部获取bean对象
+练习：模拟持久层的类
+	1.在cn.tedu.dao中定义接口：UserDao
+	void login();
+	2.在cn.tedu.dao中定义接口的实现类UserDaoImpl，实现方法
+	public void login(){
+		System.out.println("登录成功");
+	}
+	通过Spring容器初始化实现类的对象，并且调用login方法。
+	3.在测试类中定义方法。
+#spring容器管理bean对象
+##1.创建bean对象
+三种形式：
+1.使用无参的构造方法（重点）
+	<bean id="" class="xx.xx.ClassName"/>
+2.静态工厂方法实例化bean对象（了解）
+	对象是由静态方法获取的实例，把静态方法获取实例对象的模式，叫静态工厂方法实例化bean对象
+	Calendar cd = Calendar.getInstance();
+	<bean id="cl" class="java.util.Calendar"
+	factory-method="getInstance"/>
+3.实例工厂方法实例化bean对象（了解）
+	在cn.tedu.demo包中，定义类
+	public class BeanFactory{
+		public Calendar getCalendar(){
+			return Calendar.getInstance();
+		}
+	}
+	<bean id="beanFactory" class="xx.xx.BeanFactory"/>
+	<bean id="calendar" class="java.util.Calendar" factory-method="getCalendar" factory-bean="beanFactory(已经实例化好的id)" />
+##2.管理bean生命周期
+	bean的创建到销毁（从生到死）这个过程，叫生命周期
+	在cn.tedu.demo包中，
+	public class BeanLife{
+		public BeanLife(){
+			.....("BeanLife");
+		}
+		public void init(){
+			.....("init");
+		}
+		public void destroy(){
+			.....("destroy");
+		}
+	}
+	配置文件
+	<!-- bean的生命周期 -->
+	   <!-- init-method 表示定义初始化方法的方法名 
+	   		destroy-method 表示定义销毁方法的方法名
+	   -->
+	   <bean id="beanLife" 
+	   	     class="cn.tedu.demo.BeanLife"
+	   	     init-method="init"
+	   	     destroy-method="destroy"/>
+总结：
+1.spring框架：
+	开源，轻量级的企业级开发框架。包含IOC和AOP两大核心内容。包含特定功能的子框架（Spring-mvc）
+2.特点：
+	简化开发，提高效率
+	解耦
+	集成第三方框架
+3.spring容器：
+	spring容器是管理Bean对象
+	Bean：只要能创建对象，spring统称为Bean.
+	配置文件：applicationContext.xml
+	<bean id="key" class="xx.xx.类名"/>
+	获取Spring容器对象：
+	ClassPathXmlApplicationContext类读取配置文件，框架解析，得到容器对象。（ApplicationContext是接口）
+	获取bean对象的方法
+	getBean（"id"）;
+4.管理bean对象
+	1）创建对象
+		无参构造方法；静态工厂方法；实例工厂方法
+	2）生命周期
+		<bean id="" class="" init-method="初始化的方法" destroy-method="销毁的方法"/>
+##3.bean的作用域
+单例模式、多例模式
+##4.bean的延迟加载
+--------------------------------------------------------------------------------------------------------------------------------------------第二天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#【回顾】
+#Spring（重点）
+0.框架：把通用的功能事先做好，利用做好代码，提高写代码的效率。
+1.概念：开源的，轻量级企业级框架，简化开发过程，提高效率。
+2.特点：提高效率；解耦；集成第三方框架
+#Spring容器（IOC容器）
+1.Spring容器:管理bean的容器
+2.bean：能创建对象的类
+3.配置文件：bean.xml(spring-mvc.xml,spring-service.xml,spring-dao.xml)
+4.初始化Spring容器对象
+	AbstractApplicationContext ac = 
+	new ClassPathXmlApplicationContext("bean.xml");
+5.ac.getBean();获取bean对象
+#Spring管理bean
+##1.创建对象
+1.使用默认的构造方法
+	<bean id="" class="xx.xx.ClassName"/>
+2.使用静态工厂方法（了解）
+	<bean id="" class="xxx.ClassName" 
+	  factory-method="静态方法"/>
+3.使用实例工厂方法（了解）
+	<bean id="" class="" factory-method="实例方法" factory-bean="已经实例化好的id"/>
+##2.管理bean的生命周期
+	<bean id="" class="" init-method="init"
+		destroy-method="destroy"/>
+##3.设置bean的作用域
+1.单例模式：对象是一个 scope的值为singleton
+	public class King{
+		private final static King king =
+				new King();
+		private King(){}
+		public static King getKing(){
+			return king;
+		}
+	}
+	public class King{
+		private static King king;
+		private King(){}
+		public static King getKing(){
+			if(king==null){
+				king = new King();
+			}
+			return king;
+		}
+	}
+2.多例模式：对象是多个 scope的值为prototype
+开发步骤
+1.创建工程：
+	1）maven工程
+	2）添加web.xml
+	3) 导入依赖的jar包
+	4）配置文件
+2.定义类
+	在cn.tedu.demo包中定义King 
+	public class King{
+	}
+3.在配置文件中配置bean对象
+	<!-- 
+   		1.实例化对象，默认对象为单例模式 
+   		2.scope属性表示设置bean的作用域
+   			prototype表示多例模式
+   			默认值singleton表示单例模式
+   	 -->
+  		<bean id="king" class="cn.tedu.demo.King" 
+  		scope="singleton"/>
+##4.延迟加载
+1.立即加载：默认情况下，当初始化容器对象时，所有的bean对象就会被实例化，这种的加载对象的方式，叫立即加载 。
+为什么延迟加载：节省内存
+2.实现延迟加载：
+	<bean id="king1" class="xx.xx.King" 
+		lazy-init="true"/> 
+##IOC（重点）
+IOC:控制反转（Inversion Of Control）,原来创建和管理（维护）对象由程序代码完成，现在把创建和管理（维护）对象的权利交给Spring容器管理，我们把**控制权的转移**叫控制反转。
+（创建对象）
+##注意：bean的生命周期和延迟加载在bean的单例模式下有效
+#给成员变量赋值（依赖注入DI）
+依赖注入在Spring中提供两种方法：set方法依赖注入和构造方法依赖注入
+##1.set方法依赖注入(推荐使用)
+页面-控制器-业务层-持久层
+1.定义持久层的接口和实现类
+	在cn.tedu.dao包中定义接口UserDao，定义5个方法。在实现类UserDaoImpl中实现5个方法。
+	public interface UserDao{
+		void insertUser();
+		void updateUser();
+		void deleteUserById();
+		void selectById();
+		void selectAllUser();
+	}
+	public UserDaoImpl implements UserDao{
+		public void insertUser(){
+			System.out.println("添加成功");
+		}
+		。。。。
+	}
+	在cn.tedu.service包，定义接口（UserService），在接口中定义方法；定义接口的实现类，实现接口中的方法
+	public interface UserSerivce{
+		void addUser();
+	}	
+	public class UserServiceImpl implements UserService{
+	private UserDao userDao;
+		public void setUserDao(UserDao userDao){
+			this.userDao = userDao;
+		}
+		public void addUser(){
+			//调用dao层的方法insertUser()方法
+			//userDao.insertUser();
+		}
+	}
+	在配置文件中配置信息
+	 <!-- 
+  		1.实例化业务层的对象
+  		2.property表示给成员变量赋值（属性赋值）
+  		3.name表示属性名
+  		4.ref表示已经创建好的对象的id名
+  	 -->
+	  <bean id="userDao" class="cn.tedu.dao.UserDaoImpl"/>
+	  <bean id="userService" 
+	  		class="cn.tedu.service.UserServiceImpl">
+	  		<!-- 相当于调用set方法 -->
+	  		<property name="userDao" ref="userDao"/>
+	  </bean>
+测试：
+	@Test
+	public void test3(){
+		AbstractApplicationContext ac =
+			new ClassPathXmlApplicationContext(
+					"application.xml");
+		UserService us = 
+				ac.getBean("userService",
+				UserService.class);
+		us.addUser();
+		ac.close();
+	}
+##2.构造方法依赖注入
+	在UserServiceImpl类中添加带参数的构造方法
+	public UserServiceImpl(){}
+	public UserServiceImpl(UserDao userDao){
+		this.userDao = userDao;
+	}
+	class="cn.tedu.dao.UserDaoImpl"/>
+	   <!-- 
+	  	1.constructor-arg表示使用构造方法给成员变量赋值
+	  	2.index表示构造方法参数的索引（从0开始）
+	  	3.ref表示已经创建好的对象id
+	   -->
+	  <bean id="userService2" 
+	  		class="cn.tedu.service.UserServiceImpl">
+	  		<constructor-arg index="0" ref="userDao"/>
+	  </bean>
+##3.自动装配（了解）
+	byName,byType
+	<!-- 
+	  	1.autowire表示自动装配
+	  	2.byName表示匹配属性名，完成依赖注入
+	  	（UserServiceImpl中有个属性userDao，byName方式赋值
+	  		就是去找id="userDao"名字的实例化对象赋值）
+	   -->
+	  <bean id="userService3" 
+	  		class="cn.tedu.service.UserServiceImpl"
+	  		autowire="byName"/>
+	<!-- 
+	  	1.byType表示按属性的类型匹配，实现依赖注入
+	  	2.如果有两个对象同属于一个类型，那么使用byType会出现异常
+	   -->
+	  <bean id="userService4" 
+	  		class="cn.tedu.service.UserServiceImpl"
+	  		autowire="byType"/>
+##DI：依赖注入（Dependency Injection）
+通常情况下，一个类不能完成复杂的业务处理，会有多个类一起合作完成，就会出现一个类中会调用另外一个类的方法，就需要给依赖的对象赋值，所有**在程序运行过程中动态给组件（成员变量）赋值**，这种方式就叫依赖注入。
+#给属性，各种集合赋值
+	   <bean id="valueBean" 
+   		 class="cn.tedu.demo.ValueBean">
+   		 <!-- 
+   		 	给基本数据类型和字符串赋值使用value属性
+   		  -->
+   		<property name="name" value="王影"/>
+   		<property name="age" value="18"/>
+   		<property name="like">
+   			<list>
+   				<value>旅游</value>
+   				<value>看电视剧</value>
+   				<value>听音乐</value>
+   			</list>
+   		</property>
+   		<property name="city">
+   			<set>
+   				<value>沈阳</value>
+   				<value>大连</value>
+   				<value>鞍山</value>
+   				<value>抚顺</value>
+   			</set>
+   		</property>
+   		<property name="map">
+   			<map>
+   				<entry key="name" value="张志豪"/>
+   				<entry key="age" value="18"/>
+   			</map>
+   		</property>
+   		<property name="prop">
+   		<props>
+   		<prop key="driverClassName">com.mysql.jdbc.Driver</prop>
+   		<prop key="url">jdbc:mysql://localhost:3306/db</prop>
+   		<prop key="username">root</prop>
+   		<prop key="password">root</prop>
+   		</props>
+   		</property>
+   </bean>
+	给集合赋值还可以使用引用对象的方式实现依赖注入
+	 <bean id="valueBean2" 
+   		 class="cn.tedu.demo.ValueBean">
+   		 <property name="like" ref="listLike"/>
+    </bean>
+    <util:list id="listLike">
+    	<value>1111</value>
+    	<value>2222</value>
+    </util:list>
+--------------------------------------------------------------------------------------------------------------------------------------------第三天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#[回顾]
+1.bean的作用域：singleton prototype,默认是单例，如果设置为多例：可以使用bean的scope属性，值为prototype；
+	<bean id ="" class="" scope=""/>
+2.bean的延迟加载：
+默认bean立即加载。加载配置文件，实例化bean对象；
+当需要延迟加载对象时，使用以下方式设置
+	<bean id="" class="" lazy-init="true"/>
+3.IOC（重点）控制反转；。。。。。
+4.DI 依赖注入：
+	两种方式：set方法依赖注入（建议）构造方法依赖注入
+	<bean id="" class="">
+		<property name="属性名" ref="已经创建好的id名"/>
+	</bean>
+	<bean id="" class="">
+		<constructor-arg index="参数的索引" ref=""/>
+	</bean>
+5.自动装配(了解)：byName/byType
+	<bean id="" class="" autowire="byName/byType"/>
+6.赋值（基本数据类型和字符串，集合list，set，map，properties）
+	<property name="" value=""/>
+	<property name="like" >
+		<list>
+			<value>xxxx</value>
+		</list>
+	</property>
+	<property name="like" ref="listId"/>
+	<util:list id="listId">
+		<value>xxxx</value>
+	</util:list>
+#读取外部的属性文件
+	在src/main/resources文件夹下，定义db.properties
+	内容
+	url=jdbc:mysql://localhost:3306/db
+	driverClassName=com.mysql.jdbc.Driver
+	username=root
+	password=root
+	<!-- 读属性文件
+   		1.id表示读取属性文件的唯一名字
+   		2.location表示要读取的配置（属性）文件的位置
+   		  classpath：表示在类路径下（resoures文件夹）
+   	 -->
+    <util:properties id="dbConfig" 
+   		 location="classpath:db.properties"/>
+开发步骤
+	1.创建maven工程
+	1）创建maven工程
+	2）添加web.xml
+	3) 添加Tomcat运行环境
+	4）添加jar  spring-webmvc,junit,
+			   commons-dbcp,mysql
+	5) application.xml
+#Spring的表达式 BasicDataSource
+	EL表达式${},集合jstl标签库（核心标签库 c:）
+	Spring的表达式#{}
+#基于注解的方式管理bean
+实例化对象有两种方式：一种通过配置文件，一种使用注解
+1.注解扫描
+	新建包cn.tedu.dao;spring 对包下边类进行扫描，扫描到的包中的类交给Spring容器进行管理。
+	<context:component-scan
+		base-package="cn.tedu.dao"/>
+2.完成创建对象功能的注解
+	@Component:通用的注解
+	@Controller:控制器创建对象
+	@Service：业务层创建对象
+	@Repository:持久层创建对象的
+练习：
+	//@Repository创建持久从对象
+	//默认的id名是类名的第一个字母小写
+	@Repository
+	public class UserDao{
+		public void insertUser(){
+			System.out.println("添加成功");
+		}
+	}
+	获取UserDao的对象可以使用以下方式获取
+	ac.getBean("userDao");
+小结：
+开发步骤：
+1.创建工程（略）
+2.在配置文件中添加注解扫描的配置
+	<!-- 注解扫描 -->
+   	<context:component-scan base-package="cn.tedu.dao"/>
+3.创建类，在类上添加注解（能实例化的注解）
+	//@Repository表示实例化持久层对象
+	//默认id的值：类名的第一个字母 小写（userDao）
+	@Repository
+	public class UserDao {
+	public void insertUser(){
+		System.out.println("添加成功！");
+	}
+	}
+4.测试
+	@Test
+	public void testDao(){
+		//1.
+		AbstractApplicationContext ac = 
+				new ClassPathXmlApplicationContext(
+						"application.xml");
+		//2.
+		UserDao userDao = 
+		ac.getBean("userDao",UserDao.class);
+		//3.
+		userDao.insertUser();
+		//4.
+		ac.close();
+	}	
+#使用注解管理bean：
+##1.bean的生命周期
+	//@Component实例化BeanLife对象
+	//@Component("beanLife")表示给bean对象起名，
+	//等价于bean标签中的id属性值<bean id="" .../>
+	@Component("beanLife")
+	public class BeanLife {
+	public BeanLife(){
+		System.out.println("BeanLife");
+	}
+	//@PostConstruct定义初始化方法的注解
+	//@PostConstructs是tomcat运行环境依赖的jar包
+	@PostConstruct
+	public void init(){
+		System.out.println("init");
+	}
+	//做业务的方法
+	public void execute(){
+		System.out.println("execute");
+	}
+	//@PreDestroy表示定义销毁的方法
+	//@PreDestroy也是Tomcat提供的注解
+	@PreDestroy
+	public void destroy(){
+		System.out.println("destroy");
+	}
+	}
+##2.bean的作用域
+	//@Scope("prototype")表示用来设置bean的作用域；
+	//prototype表示多例，默认单例
+	@Component
+	@Scope("prototype")
+	public class DemoScope {
+	
+	}
+##3.bean的延迟加载
+	//@Lazy(true)表示对象延迟加载
+	@Component
+	@Lazy(true)
+	public class DemoLazy {
+	public DemoLazy(){
+		System.out.println("DemoLazy");
+	}
+	}
+#依赖注入（DI）
+##1.Resource(建议使用)
+	//1.@Resource表示给成员变量赋值，依赖注入
+	//2.@Resource使用此注解，可以省略set方法
+	//3.@Resource默认按名称(属性名)依赖注入（byName）
+	//4.如果名称不同，那么类型依赖注入（byType）
+	//5.@Resource(name="userDao1")找到相同名字的对象
+	@Service
+	public class UserService {
+	@Resource(name="userDao1")
+	private UserDao userDao;
+	public void addUser(){
+		userDao.insertUser();
+	}
+	}
+##2.AutoWired（了解）
+	//1.@Autowired表示依赖注入
+	//2.@Autowired默认按照类型（byType）
+	//3.如果使用属性名进行依赖注入，
+	//必须使用@Qualifier协助完成,
+	//@Qualifier("userDao1")"userDao1"表示属性名
+	//4.@Qualifier实现依赖注入的时候，不能单独使用。
+	@Service
+	public class UserService2 {
+	@Autowired
+	@Qualifier("userDao1")
+	private UserDao userDao;
+	public void addUser(){
+		userDao.insertUser();
+	}
+
+	}
+##@Value(了解)
+	config.properties
+	name=Admin
+	@Component
+	public class User{
+		@Value("#{config.name}")
+		private String name;
+		public void printName(){
+			System.out.println(name);
+		}
+	}
+总结：
+1.实例化对象，依赖注入有两种方式：配置文件，注解
+2.注解扫描：在配置文件中，配置一下代码
+	<context:component-scan base-package="xx.xx"/>
+3.4个实例化对象的注解
+	@Component通用注解
+	@Controller实例化控制器类
+	@Service实例化业务层
+	@Repository实例化持久层
+4.DI
+	@Resource
+	1）默认按照属性名依赖注入
+	2）如果属性名匹配不上，使用类型依赖注入
+	3)@Resource("属性名")按照属性名依赖注入
+5.了解的注解
+	@PostConstruct
+	@PreDestroy
+	@Lazy
+	@Scope
+	@Autowired
+	@Qualifier
+	@Value
+练习：
+	abstract Animal定义类：
+		类体{
+			public abstract void showInfo();
+		}
+
+	Cat和Dog
+
+	public class Cat{
+		private String name;
+		public void showInfo(){
+			...("xx.xx.xx"+name);
+		}
+	}
+	Dog类同上
+
+	public Class Person{
+		private Animal a;
+		public void handler(){
+			a.showInfo();
+		}
+	}
+	要求：	 1.a要求实例化类型为cat；
+		 2.在Cat和Dog类中给name依赖注入
+		 3.实例化Person对象，调用handler方法
+--------------------------------------------------------------------------------------------------------------------------------------------第四天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ssm   s(Spring IOC)  s(Spring-mvc)   m(mybatis)
+
+#【回顾】s（IOC）s（Spring-mvc）m
+1.配置文件（实例化的系统提供工具类），注解
+2.注解使用时：扫描包，使用特定的注解实例化
+	<context:component-scan
+		base-package=""/>
+	@Component
+	@Controller
+	@Service
+	@Repository
+3.DI
+	@Resource:
+4.了解的注解
+	@PostConstruct
+	@PreDestroy
+	@Scope
+	@Lazy
+	@Value
+	@Autowired
+	@Qualifier
+#MVC
+M:模型：xxService+xxDao
+v:视图：*.jsp
+c:控制器：xxServlet
+#Spring-mvc
+1.spring-mvc框架，是spring 的一个子模块，实现了MVC的设计架构，使开发MVC架构的应用简单。
+spring-mvc提供了api，封装了通用功能，提交开发效率。
+2.处理的问题：页面和控制器之间的数据传递，和页面响应。
+#5大组件
+1.DispatcherServlet:前端控制器
+2.HandlerMappping:映射处理器
+3.Controller：业务控制器
+4.ModelAndView:模型视图对象（控制器方法的返回类型）
+5.ViewResolver:视图解析器
+![](spring-mvc.png)
+#执行流程
+1.客户端发送请求，请求交给前端控制器，前端控制器把请求交给映射处理器。
+2.映射处理器绑定一个控制器类（进行业务处理），返回结果给前端控制器
+3.前端控制器调用控制器的方法，处理业务（调用业务层，业务层调用持久层），把模型和视图封装成ModelAndView对象返回。
+4.前端控制器调用视图解析器，解析视图，把结果返回给前端控制器。
+5.前端控制器响应视图到客户端。
+#开发步骤
+1.创建工程
+	1）创建maven工程
+	2）添加web.xml文件
+	3）添加tomcat运行环境
+	4）添加依赖jar包  spring-webmvc,junit
+	5) 配置文件spring-mvc.xml
+2.配置前端控制器
+	<!-- 配置前端控制器 -->
+	  <servlet>
+	  	<servlet-name>dispatcherServlet</servlet-name>
+	  	<servlet-class>
+	  		org.springframework.web.servlet.DispatcherServlet
+	  	</servlet-class>
+	  	<!-- 读配置文件 -->
+	  	<!-- 
+	  		contextConfigLocation表示类中定义好的属性名，
+	  		用于获取上下文配置文件的路径
+	  	 -->
+	  	<init-param>
+	  		<param-name>contextConfigLocation</param-name>
+	  		<param-value>classpath:spring-mvc.xml</param-value>
+	  	</init-param>
+	  	<load-on-startup>1</load-on-startup>
+	  </servlet>
+	  <servlet-mapping>
+	  	<servlet-name>dispatcherServlet</servlet-name>
+	  	<url-pattern>*.do</url-pattern>
+	  </servlet-mapping>
+3.定义控制器类
+	//定义业务控制器类
+	public class HelloController 
+		implements Controller{
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		System.out.println("HelloController");
+		//创建ModelAndView对象
+		//并且设置视图名称（不包含扩展名）
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("hello");
+		return mv;
+	}
+	}
+	在配置文件中实例化对象
+	   <!-- 实例化控制器对象 -->
+	   <bean id="hello" 
+	   	class="cn.tedu.controller.HelloController">
+	   </bean>
+4.配置HandlerMapping
+	<!-- 实例化HandlerMapping -->
+	   <bean id="handlerMapping" 
+	   	class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+	   		<property name="mappings">
+	   			<props>
+	   				<!--
+	   					1.key="/hello.do"表示定义映射名  
+	   					2.hello表示控制器对象的id
+	   					这样把映射和控制器绑定在一起了
+	   				-->
+	   				<prop key="/hello.do">hello</prop>
+	   			</props>
+	   		</property>
+	   </bean>
+5.配置视图解析器
+	<!-- 配置视图解析器 -->
+	   <bean id="viewResolver" 
+	   	class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	   <!-- 
+	     	prefix:表示设置前缀
+	        suffix:表示设置后缀
+	                响应的视图：prefix+hello+suffix
+	                  /WEB-INF/web/hello.jsp
+	    -->
+	    	<property name="prefix" value="/WEB-INF/web/"/>
+	    	<property name="suffix" value=".jsp"/>
+	   </bean>
+6.测试：
+	http://localhost:8080/day04-01/hello.do
+练习：
+	http://localhost:8080/day04-01/login.do
+	显示login.jsp页面:显示登陆成功
+	过程：1.定义控制器类LoginController,响应视图的名称login
+		2.在配置文件中绑定url和控制器
+		3.在web文件夹中定义login.jsp
+##小结
+	1.前端控制器的配置
+	2.视图解析器配置
+#基于注解的web开发（重点）
+开发步骤
+1.创建工程
+	1）创建maven工程
+	2）添加web.xml
+	3) 添加tomcat运行环境
+	4）添加依赖jar spring-webmvc
+	5) 配置文件：spring-mvc.xml
+	6) 修改web.xml文件，配置前端控制器
+	7）在spring-mvc.xml中，配置视图解析器
+2.定义控制器
+	//1.不再需要实现接口
+	//2.方法的定义，
+		方法的返回类型可以直接定义String类型
+		方法名可以自定义
+		参数列表可以为空
+	//@Controller:表示实例化控制器类
+	@Controller
+	public class UserController {
+	//定义方法，显示注册页面
+	//@RequestMapping表示定义映射名(url)的注解
+	@RequestMapping("/showRegister.do")
+	public String showRegister(){
+		//框架会把字符串封装到ModelAndView对象中
+		return "register";
+	}
+	//显示登录的页面
+	@RequestMapping("/showLogin.do")
+	public String showLogin(){
+		
+		return "login";
+	}
+	}
+练习：模拟收货地址模块
+	功能：显示地址，添加新地址，修改地址
+	1.定义控制器类   AddressController
+	2.定义3个方法
+	3.3个方法分别响应3个页面
+##@RequestMapping
+	1.可以配置在方法的上边定义映射名称
+	2.可以配置到类的上边，表示映射名之前的路径（二级路径）
+	@Controller
+	@RequestMapping("/demo")
+	public class DemoController{
+		@RequestMapping("/showIndex.do")
+		public String showIndex(){
+			return "index";
+		}
+	}
+	...../demo/showIndex.do
+<!-- mvc注解驱动（功能更加强大） -->
+  	<mvc:annotation-driven/>
+#总结
+1.Spring-MVC框架：子模块；mvc；api封装了通用功能
+2.5大组件
+	前端控制器:DispatcherServlet
+	映射处理器:HandlerMapping
+	业务逻辑控制器:Controller
+	模型视图组件:ModelAndView
+	视图解析器:ViewResolver
+3.工作原理（重点）
+4.开发步骤（基于注解）
+	@Controller
+	@RequestMapping:a)可以定义到方法上边b)定义类的上边
+5.<mvc:annotation-driven/>
+--------------------------------------------------------------------------------------------------------------------------------------------第五天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#【回顾】
+1.Spring-mvc的工作原理
+1）客户端发送请求，由前端控制器接收请求，把请求交给映射处理器，处理器解析请求，并绑定控制器，返回给前端控制器
+2）控制器调用控制器，通过方法处理业务逻辑，。。。，把模型和视图封装成ModelAndView对象，返回给前端控制器
+3）前端控制器调用视图解析器，解析ModelAndView，把视图结果交给前端控制器
+4）前端控制器，把视图响应给客户端。
+2.使用注解的方式开发一个controller
+1）前端控制器需要在web.xml文件中进行配置。（一次）
+2）视图解析器，需要在spring-mvc.xml文件中配置（一次）
+3）控制器（Controller）的编写
+	@Controller
+	@RequestMapping("/user")
+	public class UserController{
+		@RequestMapping("/login.do")
+		public String "login";
+	}
+3.<mvc:annotation-driven/>
+#页面->控制器
+1.request（不建议）
+2.使用属性：如果名字不相同，使用@RequestParam("")
+	参数少
+3.Bean对象
+	参数多
+#控制器->页面
+1.request、session（不建议使用）
+2.ModelAndView
+3.ModelMap(建议使用)
+#转发和重定向
+1.转发:
+	request.getRequestDispatcher("ok.jsp").forward(req,res);
+2.重定向
+	response.sendRedirect("ok.jsp");
+
+3.框架实现转发和重定向，如果框架解析出有相关重定向关键字时，不实现拼接，而是使用以上代码实现。
+	return "forward:xxx.do/xxx.jsp";
+	return "redirect:xxx.do/xxx.jsp";
+开发步骤
+1.创建工程
+	1）创建maven工程
+	2）添加web.xml
+	3) 添加tomcat 运行环境
+	4）添加依赖jar包  Spring-webmvc.jar
+	5) 配置文件spring-mvc.xml
+	6) 在web.xml中配置前端控制器
+	7）在Spring-mvc配置视图解析器和mvc的注解驱动
+2.创建jsp页面
+	<%@ page contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>
+	<html>
+	<head>
+	<title>Insert title here</title>
+	</head>
+	<body style="font-size:30px;">
+	<form action="${pageContext.request.contextPath}/demo/xx.do" method="post">
+	姓名：<input type="text" name="name" id="name"/><br>
+	年龄：<input type="text" name="age" id="age"/><br>
+	密码：<input type="password" name="pwd" id="pwd"/><br>
+	<input type="submit" value="提交"/>
+	</form>
+	</body>
+	</html>
+3.控制器类的编写
+	@Controller
+	@RequestMapping("/demo")
+	public class DemoController {
+	//显示demo页面
+	@RequestMapping("/showDemo.do")
+	public String showDemo(){
+		return "demo";
+	}
+	}
+4.测试：
+	http://localhost:8080/day05-01/demo/showDemo.do
+5.页面->控制器传值
+	1）使用request传值
+	//特点：直接，但是不能自动类型转换
+	@RequestMapping("/test1.do")
+	public String test1(
+			HttpServletRequest request){
+		String name = 
+				request.getParameter("name");
+		Integer age = Integer.parseInt(
+				request.getParameter("age"));
+		System.out.println(age+","+name);
+		return "ok";
+	}
+	2）通过属性传值
+	//特点：1.变量名必须和表单组件的name值相同
+	//     2.可以实现类型转换
+	//     3.在类型转换时可能会出现异常
+	@RequestMapping("/test2.do")
+	public String test2(
+		String name,Integer age,String pwd){
+	System.out.println(name+","+age+","+pwd);
+	
+		return "ok";
+	}
+	3）属性传值
+	//1.表单组件的name属性值和变量名不相同时，需要使用
+	// @RequestParam("pwd") 辅助完成赋值
+	//2.pwd表示表单组件的name属性值
+	//3.400错误：如果@RequestParam("pwd")中的pwd在页面
+	//          不存在，会产生400错误
+	@RequestMapping("/test3.do")
+	public String test3(
+			String name,
+			Integer age,
+			@RequestParam("pwd") String password){
+		System.out.println(password);
+		return "ok";
+	}
+	4）bean对象传值
+	//特点：1.把表单组件的name属性值封装到bean类中。
+	//     2.方法的参数传递封装类类型的对象即可。
+	//     3.如果前端提交数据较多，建议使用此种方式
+	@RequestMapping("/test4.do")
+	public String test4(User user){
+		System.out.println(user);
+		return "ok";
+	}
+6.控制器->页面
+	1）request和session对象
+	@RequestMapping("/test5.do")
+	public String test5(
+			HttpServletRequest request,
+			HttpSession session){
+		request.setAttribute("name", "admin");
+		session.setAttribute("age",18);
+		
+		return "ok";
+	}
+	在ok.jsp页面显示值
+	name:${requestScope.name}<br>
+	age:${sessionScope.age}
+	2）使用ModelAndView传值
+	//1.ModelAndView构造方法中可以设置一个Map对象
+	//2.Map对象经过框架处理后，
+	//  会把key-value设置到request对象中
+	@RequestMapping("/test6.do")
+	public ModelAndView test6(){
+		Map<String,Object> map = 
+				new HashMap<String,Object>();
+		map.put("message", "控制器向页面传值");
+		ModelAndView mv =
+				new ModelAndView("ok",map);
+		return mv;
+	}
+	3）ModelMap传值
+	//1.ModelMap是框架提供的map集合
+	//2.ModelMap同样被框架设置到request对象中
+	@RequestMapping("/test7.do")
+	public String test7(ModelMap map){
+		//设置属性值
+		map.addAttribute("error","登录失败！");
+		return "ok";
+	}
+7.转发和重定向
+	//转发和重定向
+	//原理
+	//1.转发:request.getRequestDispatcher("ok.jsp").
+	//                 forward(req,res);
+	//2.重定向response.sendRedirect("ok.jsp");
+	@RequestMapping("/test9.do")
+	public String test9(String name){
+		//1.如果用户名是admin，那么转发到ok.jsp
+		//2.否则，重定向到demo.jsp  (showDemo.do)
+		if("admin".equals(name)){
+			return "forward:/WEB-INF/web/ok.jsp";
+		}else{
+			return "redirect:showDemo.do";
+		}	
+	}
+jsp中9个内置对象
+ 	pageContext reqeust session application
+ 	response out
+ 	page  config exception
+el中的11个内置对象
+	request.setAttribute("name","admin");
+	session.setAttribute("name","admin1");
+	${requestScope.name}
+
+ 	pageScope,requestScope,
+ 	sessionScope,applicationContext
+
+ 	param   paramValues
+ 	header  headerValues
+
+ 	initParam cookie
+	
+ 	pageContext 
+#案例-登录
+1.创建表t_user
+	create table t_user(
+		id int auto_increment primary key,
+		username varchar(50),
+		password varchar(32),
+		phone varchar(20),
+		email varchar(30)
+	)
+2.创建工程
+	1）2）3）
+	4）添加依赖jar spring-webmvc,junit,mysql,commons-dbc
+	5) 配置文件 spring-mvc.xml,application-dao.xml,application-service.xml
+	6) 配置文件的配置 *3 定义db.properties
+	7) web.xml
+3.持久层
+在cn.tedu.bean 包定义User实体类
+1）定义接口，定义方法
+	public interface UserDao{
+		User selectByUsername(String username);
+	}
+2）实现类中实现接口中的方法
+	public class UserDaoImpl implements UserDao{
+		public User selectByUsername(String username){
+			//1.获取Connection对象
+			//2.获取PreparedStatement对象，发送预编译语句
+			//3.给占位符设置值
+			//4.执行，得到结果集
+			//5.遍历结果集把数据封装到User对象
+			//6.返回user对象
+		}
+	}
+--------------------------------------------------------------------------------------------------------------------------------------------第六天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#【回顾】
+1.IOC
+控制反转。把创建和管理对象的权利由程序代码交给Spring容器，我们把控制权的转移，叫控制权反转
+2.DI
+依赖注入。程序在动态运行过程中，给组件赋值。
+3.注解实现实例化
+@Component
+@Controller
+@Service
+@Repository
+4.完成依赖注入的注解
+@Resource
+5.spring-mvc
+工作原理（5大组件）
+6.Controller的编写
+	@Controller
+	@RequestMapping("/XXname")
+	public class XXController{
+		@RequestMapping("/url")
+		public String xxHandler(){
+
+		}
+	}
+7.页面->控制器
+request
+属性传值（@RequestParam("name") String uname）
+Bean对象
+8.控制器->页面
+request/session-cookie
+ModelAndView
+ModelMap
+9.转发和重定向
+默认转发，字符串拼接
+redirect:xx.do/xx.jsp
+forward:xx.do/xx.jsp
+#处理中文乱码
+1.页面
+	<%@ page contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>	
+2.post、get请求
+	1）post请求
+	<!-- 配置过滤器，实现post的请求的编码格式的设置 -->
+	  <filter>
+	  	<filter-name>encodingFilter</filter-name>
+	  	<filter-class>
+	  	org.springframework.web.filter.CharacterEncodingFilter
+	  	</filter-class>
+	  	<init-param>
+	  		<param-name>encoding</param-name>
+	  		<param-value>utf-8</param-value>
+	  	</init-param>
+	  </filter>
+	  <filter-mapping>
+	  	<filter-name>encodingFilter</filter-name>
+	  	<url-pattern>/*</url-pattern>
+	  </filter-mapping>
+	2）get请求
+	在service.xml文件中，设置URIEncoding="utf-8"
+	在64行左右
+	 <Connector URIEncoding="utf-8" connectionTimeout="20000" port="8080" protocol="HTTP/1.1" redirectPort="8443"/>
+3.数据库
+	1）安装时，选择编码格式utf8。
+	2）url=jdbc:mysql://localhost:3306/db?useUnicode=true&characterEncoding=utf8
+	3) create table xx(..)default charset=utf8
+#处理异常
+1.配置文件
+	<!-- 配置文件的方式，处理异常 -->
+	   <bean id="exceptionResolver" 
+	   class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	   		<property name="exceptionMappings">
+	   			<props>
+	   				<!-- key表示定义异常类型 -->
+	   				<!-- error 表示页面的名称-->
+	   				<prop key="java.lang.RuntimeException">error</prop>
+	   			</props>
+	   		</property>
+	   </bean>
+2.注解
+	//@ControllerAdvice表示当前项目的
+	//                 所有的异常都可以处理
+	@ControllerAdvice
+	public class DemoHandlerException {
+	//@ExceptionHandler表示处理异常的方法
+	@ExceptionHandler
+	public String handlerException(
+			HttpServletRequest req,
+			Exception e){
+		req.setAttribute("error",
+				e.getMessage());
+		return "error";
+	}
+	}
+#拦截器
+1.定义拦截器
+	public class DemoInterceptor implements 
+		HandlerInterceptor{
+	//1.表示在控制器方法之前执行。
+	//2.方法的返回值如果为false，则不再继续向下执行
+	 //                        表示请求到此结束。
+	//3.方法的返回值如果为true，会继续执行控制器方法
+	//适合做登录验证
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws Exception {
+		System.out.println("preHandle");
+		return true;
+	}
+	//表示在控制器的方法之后，在响应页面之前执行
+	//对响应视图对象进行处理
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+			ModelAndView modelAndView) throws Exception {
+		
+		System.out.println("postHandle");
+	}
+	//当页面响应成功。
+	//适合处理一些收尾的操作，比如性能测试
+	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+			throws Exception {
+		System.out.println("afterCompletion");
+	}
+	}
+
+2.配置拦截器
+	<!-- 配置拦截器 -->
+	   <mvc:interceptors>
+	   	 <mvc:interceptor>
+	   	 	<!-- path表示拦截的路径，如果拦截所有/**  -->
+			<mvc:mapping path="/user/*"/>
+			<!-- 实例化拦截器对象 -->
+		<!-- exclude-mapping表示不拦截的url -->
+		<mvc:exclude-mapping path="/user/showLogin.do"/>
+		<mvc:exclude-mapping path="/user/login.do"/>
+			<bean class="cn.tedu.interceptor.DemoInterceptor"/>
+	   	 </mvc:interceptor>
+	   </mvc:interceptors>
+#登录
+##1.数据库
+##2.持久层
+##3.业务层
+1.定义接口，并且在接口中定义业务方法
+	package cn.tedu.service;
+	public interface UserService{
+		User login(String username,Strig pwd);
+	}
+2.定义接口的实现类
+	@Service
+	public class UserServiceImpl implements UserService{
+		@Resource
+		private UserDao userDao;
+		public User login(String username,String pwd){
+			//1.调用持久的方法；返回user对象
+			//2.if(user==null){
+				throw new RuntimeException("用户名错误");
+			}else{
+			//3.如果存在；判断密码
+				if(user.getPassword().equals(pwd)){
+				//4.如果密码相同，返回user对象
+					return user；
+				}else{
+				//5.密码不相同，抛出异常
+					throw new RuntimeException("密码错误");
+				}
+			}
+		}
+	}
+
+测试：
+	new ClassPathXmlApplicationContext("application-dao.xml",
+	"application-service.xml");
+##4.控制器
+url：
+	/login.do
+	参数列表：username,pwd,ModelMap map
+	请求方式：post
+	响应方式：转发
+	定义控制器类cn.tedu.controller
+	@Controller
+	@RequestMapping("/user")
+	public class LoginController{
+		@Resource
+		private UserService userService;
+		@RequestMapping("/login.do")
+		public String login(String username,String pwd,ModelMap map,HttpSession session){
+			try{
+				User user = userService.login(username,pwd);
+				session.setAttribute("user",user);
+				return "index";
+			}catch(RuntimeException ex){
+				map.addAttribute("error",ex.getMessage());
+				return "login";
+			}
+		}
+	}
+##5.页面
+	login.jsp
+	<body style="font-size:30px;">
+	${error}<br>
+	<form action="${pageContext.request.contextPath}/user/login.do" method="post">
+	账号：<input type="text" name="username"/><br>
+	密码：<input type="password" name="pwd"/><br>
+	<input type="submit" value="登录">
+	</form>
+	</body>
+	index.jsp
+	<body style="font-size:30px;">
+	${user.username}的个人信息如下：<br>
+	编号：${user.id}<br>
+	用户名：${user.username}<br>
+	密码：${user.password}
+	</body>
+--------------------------------------------------------------------------------------------------------------------------------------------第七天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#【回顾】
+##1.中文乱码
+1.页面：<%@ page
+2.post/get请求
+	post请求配置Filter
+	get在服务器的配置文件中URIEncoding=utf-8
+3.数据库
+	url=....?useUnicode=true&characterEncoding=utf8
+	。。。。()default charset=utf8
+##2.异常处理（异常页面）
+1.配置文件：SimpleMappingExceptionResolver
+2.注解:@ControllerAdvice  @ExceptionHandler
+##3.拦截器
+1.定义拦截器：HandlerInterceptor
+2.配置拦截器
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/user/*"/>
+			<mvc:exclude-mapping path="/user/login.do"/>
+			<bean class="xx.xx.xxInterceptor"/>
+		</mvc:interceptor>
+	</mvc:interceptors>
+#Mybatis iBatis
+1.封装了底层jdbc的持久层框架。普通sql，定义过程（项目）
+2.提供API，操作框架。
+3.SQL语句可以使用xml和注解
+#创建工程
+1.创建maven工程
+2.添加web.xml
+3.添加tomcat运行环境
+4.添加依赖jar包  mybatis    mysql   junit
+#配置框架
+1.配置文件xxConfig.xml：和连接数据库相关的配置 4个
+2.映射文件xxMapper.xml：sql语句的编写
+#使用框架
+在cn.tedu.bean包中，定义实体类User
+	public class User{
+		private Integer id;
+		private String name;
+		private String password;
+		private String phone;
+		private String email;
+		//1.set/get
+		//2.重写equals,hashCode,toString
+		//3.实现序列化
+		//4.序列号
+	}
+1.cn.tedu.dao 包中定义接口IUserDao
+	public interface IUserDao{
+		void insertUser(User user);
+		void updateUser(User user);
+		void deleteUser(Integer id);
+		User selectById(Integer id);
+		List<User> selectAll();
+	}
+2.UserDao
+	public class UserDao implements IUserDao{
+	public void insertUser(User user) {
+		//.SqlSession
+		SqlSession session = 
+				SqlSessionUtil.getSession();
+				
+		//第一个参数：namespace.id
+		session.insert("userDao.insertUser", user);
+		//提交事务
+		session.commit();
+		session.close();
+	}
+	public void updateUser(User user) {
+		SqlSession session = 
+				SqlSessionUtil.getSession();
+		session.update("userDao.updateUser",user);
+		//提交事务
+		session.commit();
+		//关闭session
+		session.close();
+	}
+	public void deleteUser(Integer id) {
+		SqlSession session = 
+				SqlSessionUtil.getSession();
+		session.delete("userDao.deleteUser", id);
+		session.commit();
+		session.close();
+	}
+	public User selectById(Integer id) {
+		SqlSession session = 
+				SqlSessionUtil.getSession();
+				
+		User user = 
+				session.selectOne(
+				"userDao.selectById",id);
+		session.commit();
+		session.close();
+		return user;
+	}
+	public List<User> getAll() {
+		SqlSession session =
+				SqlSessionUtil.getSession();
+		List<User> list =
+		session.selectList("userDao.getAll");
+			
+		session.commit();
+		session.close();
+		return list;
+	}
+	}
+工具类SQLSessionUtil
+	public class SqlSessionUtil {
+	private static SqlSessionFactory ssf;
+	static{
+	//1.读配置文件(通过类加载器)
+	InputStream in = 
+		UserDao.class.getClassLoader()
+		.getResourceAsStream("SqlMapperConfig.xml");
+	//2.SqlSessionFactory(ConnecionFactory)
+	ssf = new SqlSessionFactoryBuilder()
+			.build(in);
+	}
+	public static SqlSession getSession(){
+		return ssf.openSession();
+	}
+	}
+3.编写映射文件
+		<mapper namespace="userDao">
+		<!-- 插入user对象 -->
+		<!-- void insertUser(User user)  -->
+		<!-- 1.insert表示定义insert语句的节点
+			 2.id表节点的名称，值唯一
+			 3.parameterType表示定义参数的类型
+			 4.#{name}表示从user对象中取出name属性值，
+			   给username字段赋值
+		 -->
+		<insert id="insertUser" 
+			    parameterType="cn.tedu.bean.User">
+			insert into t_user(
+				username,password,phone,email
+			) values (
+				#{name},#{password},#{phone},#{email}
+			)
+		</insert>
+	<!-- 修改用户信息 -->
+		<!-- void updateUser(User user); -->
+		<!-- 
+			update节点完成update语句的编写
+		 -->
+		<update id="updateUser" 
+				parameterType="cn.tedu.bean.User">
+			update t_user
+			set
+				username=#{name},
+				password=#{password},
+				phone=#{phone},
+				email=#{email}
+			where
+				id=#{id}	
+		</update>
+		<!-- 删除用户信息 -->
+		<!-- void deleteUser(Integer id)-->
+		<!-- 
+			1.delete节点表示定义删除语句
+			2.如果参数列表 为8种基本数据类型或者String类型
+			         那么parameterType可以省略
+			3.如果不省略，那么
+				parameterType="java.lang.Integer"
+		 -->
+		<delete id="deleteUser">
+			delete from t_user
+			where 
+				id=#{id}
+		</delete>
+		<!-- 根据id查询用户信息 -->
+		<!-- User selectById(Integer id) -->
+		<!-- 
+			1.select节点表示定义select语句
+			2.resultType表示当前记录返回的封装类类型
+			3.默认封装对象规则：按表的字段名封装
+			4.如果类的属性名和字段名不同，可以给字段名起别名
+		 -->
+		<select id="selectById" 
+				resultType="cn.tedu.bean.User">
+				
+			select 
+				id,username name,password,phone,email
+			from 
+				t_user
+			where
+				id=#{id}
+		</select>
+		<!-- 查询所有的用户信息 -->
+		<!-- List<User> getAll() -->
+		<select id="getAll" 
+				resultType="cn.tedu.bean.User">
+			select 
+				id,username name,password,phone,email
+			from 
+				t_user 
+		</select>
+	</mapper>
+4.编写测试类
+	public class TestUserDao {
+	@Test
+	public void testInsertUser(){
+		IUserDao userDao = 
+				new UserDao();
+		User user = new User();
+		user.setName("小李");
+		user.setPassword("123456");
+		user.setPhone("13800138000");
+		user.setEmail("xiaoli@tedu.cn");
+		userDao.insertUser(user);
+	}
+	@Test
+	public void testUpdateUser(){
+		IUserDao userDao = 
+				new UserDao();
+		User user = new User();
+		user.setId(3);
+		user.setName("小王");
+		user.setPassword("111111");
+		user.setPhone("13800138009");
+		user.setEmail("xiaowang@tedu.cn");
+		userDao.updateUser(user);
+	}
+	@Test
+	public void testDeleteUser(){
+		IUserDao userDao = 
+				new UserDao();
+		userDao.deleteUser(3);
+	}
+	@Test
+	public void testSelectOne(){
+		IUserDao userDao = 
+				new UserDao();
+		System.out.println(
+				userDao.selectById(1));
+	}
+	@Test
+	public void testSelectAll(){
+		IUserDao userDao = 
+				new UserDao();
+		List<User> list = 
+				userDao.getAll();
+		for(User user : list){
+			System.out.println(user);
+		}
+	}
+	}
+#基于Mapper的mybatis的使用（重点）
+##1.创建表t_address
+	create table t_address(
+		id int auto_increment primary key,
+		province varchar(20),
+		city varchar(20),
+		area varchar(30),
+		user_address varchar(30)
+	)default charset=utf8
+##2.创建工程
+	略
+##3.配置mybatis框架
+1.XXConfig.xml：配置和数据库连接的相关信息
+2.XXMapper.xml：编写sql语句
+##4.定义接口
+	public interface AddressDao{
+		Integer insertAddress(Address address);
+		Integer updateAddress(Address address);
+		Integer deleteAddress(Integer id);
+		Address selectById(Integer id);
+		List<Address> selectAll();
+	}
+##5.编写映射文件
+	<!-- namespace表示命名空间 ，值必须为接口的名称（包括包名）-->
+	<!-- 实现类没有，mybatis框架会生成接口的实现类 -->
+	<mapper namespace="cn.tedu.dao.AddressDao">
+		<!-- 插入地址信息 -->
+		<!-- Integer insertAddress(Address address); -->
+		<!-- 
+			id必须和方法名一致
+		 -->
+		<insert id="insertAddress" 
+				parameterType="cn.tedu.bean.Address"
+				>
+			insert into t_address (
+				province,city,area,user_address
+			) values (
+				#{province},#{city},#{area},#{userAddress}
+			)	
+		</insert>
+		<!-- 修改地址信息 -->
+		<!-- Integer updateAddress(Address address); -->
+		<update id="updateAddress" 
+				parameterType="cn.tedu.bean.Address">
+			update t_address
+			set
+				province=#{province},
+				city=#{city},
+				area=#{area},
+				user_address=#{userAddress}
+			where
+				id=#{id}
+		</update>
+		<!-- 根据id做查询 -->
+		<!-- 
+			1.处理字段名和属性名不相同的第二种解决方案 
+			2.把字段和属性之间做一个映射
+			3.resultMap表示实现映射的节点
+			4.type表示映射的java类的类型
+			5.id属性表示节点的值，唯一
+			6.id节点表示用来映射主键字段的
+			7.result节点表示映射除了主键字段之外的其它字段
+		-->
+		<resultMap type="cn.tedu.bean.Address" 
+					id="resultAddress">
+			<id column="id" property="id"/>
+			<result column="province" property="province"/>
+			<result column="city" property="city"/>
+			<result column="area" property="area"/>
+			<result column="user_address" property="userAddress"/>
+		</resultMap>
+		
+		<!-- Address selectById(Integer id); -->
+		<select id="selectById" 
+			     resultMap="resultAddress">
+			select *
+			from 
+				t_address
+			where 
+				id=#{id}
+		     
+		</select>
+	</mapper>
+##6.编写测试类
+	public class TestAddress {
+	@Test
+	public void testInsertAddress(){
+		SqlSession session =
+				SqlSessionUtil.getSession();
+		
+		AddressDao dao = 
+		session.getMapper(AddressDao.class);
+		Address address = new Address();
+		address.setProvince("辽宁省");
+		address.setCity("大连市");
+		address.setArea("中山区");
+		address.setUserAddress("万达广场");
+		Integer n = 
+				dao.insertAddress(address);
+		System.out.println(n);
+		session.commit();
+		session.close();
+	}
+	@Test
+	public void testUpdate(){
+		SqlSession session = SqlSessionUtil.getSession();
+		AddressDao  dao =
+		session.getMapper(AddressDao.class);
+		Address address = new Address();
+		address.setId(1);
+		address.setProvince("河北省");
+		address.setCity("石家庄市");
+		address.setArea("山区");
+		address.setUserAddress("达内教育");		
+		Integer n = dao.updateAddress(address);
+		System.out.println(n);
+		session.commit();
+		session.close();
+	}
+	@Test
+	public void testSelectById(){
+		SqlSession session = SqlSessionUtil.getSession();
+		AddressDao dao = session.getMapper(AddressDao.class);
+		System.out.println(dao.selectById(1));
+		session.close();
+	}
+	}
+--------------------------------------------------------------------------------------------------------------------------------------------第八天-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#【回顾】
+1.mybatis框架：
+	持久层的框架；封装了底层jdbc；通过映射文件或者注解
+2.`<insert><update><delete><select>`
+3.mapper节点中namespace属性必须为接口的名字（包名）； 以上4个节点中id名必须为方法名；
+4.以上`<insert><update><delete>`个节点，没有resultType属性
+5.`<select>`有resultType属性：若果返回一条或者多条记录，resultType属性表示记录的封装类类型
+6.属性名和字段名不相同，解决方案有两种：起别名；做映射
+	<resultMap type="" id="">
+		<id column="" property=""/>
+		<result column="" property=""/>
+	</resultMap>
+7.返回一个对象：表中有记录，则返回对象；表中没有记录，返回null
+8.返回List：表中有记录，把记录封装成对象，添加到集合；表中没有查到记录，集合元素的个数为0，集合不为null
+#ssm整合
+##1.创建工程
+1.创建工程
+	1）创建maven工程
+	2）添加web.mxl
+	3) 添加tomcat运行环境
+2.添加依赖jar
+	spring-webmvc
+	mybatis
+	mybatis-spring
+	mysql
+	commons-dbcp
+	junit
+	jstl
+	spring-jdbc----事务处理（aop）
+3.配置文件
+	spring-mvc.xml
+	application-service.xml
+	application-dao.xml
+	db.properties
+	mappers/XXMapper.xml
+
+	db.properties
+	url=jdbc:mysql://localhost:3306/db?useUnicode=true&characterEncoding=utf8
+	username=root
+	password=root
+	driverClassName=com.mysql.jdbc.Driver
+
+	application-dao.xml
+	   <!-- 读属性文件
+	   		1.id表示读取属性文件的唯一名字
+	   		2.location表示要读取的配置（属性）文件的位置
+	   		  classpath：表示在类路径下（resoures文件夹）
+	   	 -->
+	   <util:properties id="dbConfig" 
+	   		 location="classpath:db.properties"/>
+	   <!-- #{dbConfig.url}表示Spring的表达式语法 -->
+	   <bean id="dataSource" 
+	   		 class="org.apache.commons.dbcp.BasicDataSource">
+	   		<property name="url" value="#{dbConfig.url}"/>
+	   		<property name="username" value="#{dbConfig.username}"/>
+	   		<property name="password" value="#{dbConfig.password}"/>
+	   		<property name="driverClassName" 
+	   				  value="#{dbConfig.driverClassName}"/>
+	   </bean>
+	   <!-- Spring和mybatis整合 -->
+	   <!-- 扫描持久层的包 -->
+	   <bean id="scannerConfigurer" 
+	   class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	   	<property name="basePackage" value="cn.tedu.ssm.dao"/>
+	   </bean>
+	   <!-- SqlsessionFactoryBean工厂 -->
+	   <bean id="factoryBean" 
+	   	class="org.mybatis.spring.SqlSessionFactoryBean">
+	   		<!-- 依赖注入dataSource -->
+	   		<property name="dataSource" ref="dataSource"/>
+	   		<!-- 配置映射文件 -->
+	   		<property name="mapperLocations" 
+	   				  value="classpath:mappers/*.xml"/>
+	   </bean>
+4.web.xml
+1)配置上下文的监听器，读上下文的初始化参数
+	<!-- 配置上下文的初始化参数 -->
+	  <context-param>
+	  	<param-name>contextConfigLocation</param-name>
+	  	<param-value>classpath:application-*.xml</param-value>
+	  </context-param>
+	  <!-- 配置上下文的监听器，读上下文的初始化参数 -->
+	  <listener>
+	  	<listener-class>
+	  		org.springframework.web.context.ContextLoaderListener
+	  	</listener-class>
+	  </listener>
+2)配置过滤器，设置post请求编码格式 
+	 <!-- 配置过滤器，设置post请求编码格式 -->
+	  <filter>
+	  	<filter-name>encodingFilter</filter-name>
+	  	<filter-class>
+	  	org.springframework.web.filter.CharacterEncodingFilter
+	  	</filter-class>
+	  	<!-- 设置初始化参数 -->
+	  	<init-param>
+	  		<param-name>encoding</param-name>
+	  		<param-value>utf-8</param-value>
+	  	</init-param>
+	  </filter>
+	  <filter-mapping>
+	  	<filter-name>encodingFilter</filter-name>
+	  	<url-pattern>/*</url-pattern>
+	  </filter-mapping>
+3)配置前端控制器 
+	<!-- 配置前端控制器 -->
+	  <servlet>
+	  	<servlet-name>dispatcherServlet</servlet-name>
+	  	<servlet-class>
+	  		org.springframework.web.servlet.DispatcherServlet
+	  	</servlet-class>
+	  	<init-param>
+	  		<param-name>contextConfigLocation</param-name>
+	  		<param-value>classpath:spring-mvc.xml</param-value>
+	  	</init-param>
+	  	<load-on-startup>1</load-on-startup>
+	  </servlet>
+	  <servlet-mapping>
+	  	<servlet-name>dispatcherServlet</servlet-name>
+	  	<url-pattern>*.do</url-pattern>
+	  </servlet-mapping>
+##2.创建表
+	create table dept(
+		id int auto_increment primary key,
+		dept_name varchar(30),
+		dept_loc varchar(50) 
+	)default charset=utf8
+##3.部门管理-添加部门
+###3.1持久层
+在cn.tedu.ssm.bean包，定义实体类Dept
+1.在cn.tedu.ssm.dao包中，定义接口，在接口中定义方法
+	public interface DeptDao{
+		void insertDept(Dept dept);
+	}
+2.在mappers/DeptMapper.xml中定SQL语句
+	mapper namespace="cn.tedu.ssm.dao.DeptDao"
+	<insert id="insertDept" parameterType="xx.xx.Dept">
+		insert into dept(
+			dept_name,dept_loc
+		) values(
+			#{deptName},#{deptLoc}
+		)
+	</inset>
+测试：
+	@Test
+	public void testInsetDept(){
+		//1.获取spring容器
+		AbstractApplicationContext ac = 
+		new ClassPathXmlApplicationContext(
+			"application-dao.xml");
+		//2.获取bean对象
+		DeptDao deptDao = 
+		ac.getBean("deptDao",DeptDao.class);
+		
+		//3.调用方法
+		Dept dept = new Dept();
+		dept.setDeptName("第一开发部");
+		dept.setDeptLoc("中关村");
+		deptDao.insertDept(dept);
+		//4.关闭容器
+		ac.close();
+	}
+###3.2业务层
+1.在cn.tedu.ssm.service包中定义接口，定义方法
+	public interface IDeptService{
+		void addDept(Dept dept);
+	}
+2.在同一包中，定义实现类，实现接口中的方法
+	@Service
+	public class DeptService implements IDeptService{
+		@Resource
+		private DeptDao deptDao;
+		public void addDept(Dept dept){
+			deptDao.insertDept(dept);
+		}
+	}
+测试：
+###3.3控制器层
+url定义
+	/showAddDept.do   --显示页面 addDept.jsp
+	参数列表：无
+	响应方式：转发 
+	@Controller
+	@RequestMapping("/dept")
+	public class DeptController{
+		@RequestMapping("/showAddDept.do")
+		public String showAddDept(){
+			return "addDept";
+		}
+	} 
+	在web文件夹中定义addDept.jsp页面
+	<body style="font-size:30px;">
+	<form action="" method="post">
+		部门名称：<input type="text" name="deptName" 
+				        id="deptName"><br>
+		部门地址：<input type="text" name="deptLoc" 
+				        id="deptLoc"><br>
+		<input type="submit" value="添加">		        
+	</form>
+	</body>
+测试：
+	/addDept.do
+	参数列表：deptName,deptLoc
+	响应方式：转发   ----index.jsp 
+	@Resource
+	private IDeptService deptService;
+	@RequestMapping("/addDept.do")
+	public String addDept(String deptName,String deptLoc){
+		//1.调用业务层方法；把参数列表的两个变量封装到Dept对象中；
+		//2.return "index";
+	}
+在web文件夹中创建index.jsp文件：在页面上显示“添加成功！”
+在addDept.jsp页面上form标签中的action属性赋值
+测试：
+###3.4页面
+##4.部门管理-显示部门
+###4.1持久层
+1.在接口定义方法
+	List<Dept> selectAll();
+2.在映射文件中定义sql语句
+	<select id="selectAll" resultType="xx.xx.Dept">
+		select
+			id,
+			dept_name deptName,
+			dept_loc deptLoc
+		from
+			dept
+	</select>
+测试：
+
+
+create table t_address(
+	id int auto_increment primary key,
+	uid int not null,
+	recv_name varchar(100),
+	recv_province varchar(6),
+	recv_city varchar(6),
+	recv_area varchar(6),
+	recv_district varchar(50),
+	recv_address varchar(100),
+	recv_phone varchar(32),
+	recv_tel varchar(32),
+	recv_zip varchar(6),
+	recv_tag varchar(10),
+	isDefault int(1),
+	created_user varchar(50),
+	created_time date,
+	modified_user varchar(50),
+	modified_time date
+)default charset=utf8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

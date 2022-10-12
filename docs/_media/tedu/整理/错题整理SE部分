@@ -1,0 +1,278 @@
+//(单选题)用（ ）方法可以改变线程的优先级。
+ A.yield
+ B.sleep
+ C.run
+ D.setPrority
+
+正确答案：D
+此题目考查的是修改线程优先级的方法
+
+Thread类中定义了setPrority()方法，用来设置线程的优先级。
+
+选项D正确。
+
+
+//(单选题)如下变量的定义：
+String str1 = "tedu";
+String str2 = "tedu";
+以上代码中创建了（ ）对象
+ A.0
+ B.1
+ C.2
+ D.3
+
+正确答案：B
+Java为了提高性能，静态字符串（字面量、常量、常量连接）在常量池中创建，
+
+并尽量使用同一个对象，重用静态字符串。对于重复出现的字符串直接量，JVM
+
+会首先在常量池中查找，如果存在即返回该对象。
+
+本题中两个变量都指向内容相同的字符串，所以只有1个对象。
+
+选项B正确。
+
+
+//(单选题)下列哪个方法用于创建一个抽象路径名指定的目录和其父目录（ ）。
+ A.createNewFile();
+ B.createNewFiles();
+ C.mkdir();
+ D.mkdirs();
+
+正确答案：D
+此题目考查的是File类哪个方法用来创建层级目录
+
+选项A错误，createNewFile();用来创建文件
+
+选项B错误，File类中没有该方法
+
+选项C错误，mkdir()用于创建当前目录
+
+选项D正确。
+
+
+
+//(单选题)下列创建一个新的文件的代码段中1和2处应该添加的代码是：（ ）。
+File file = new File("c://a.txt");
+if(/*1*/){
+try {
+/*2*/
+} catch (IOException e) {
+e.printStackTrace();
+}
+}
+ A.!file.exists();
+file.createNewFile();
+ B.!file.exists();
+file.mkdir();
+ C.File!=null
+file.createNewFile();
+ D.file.isDirectory()
+file.createNewFile();
+
+正确答案：A
+此题目考查的是如何通过File类创建一个文件。
+
+判断文件是否存在的方法是：exists();
+
+创建文件的方法是：createNewFile();
+
+选项A正确
+
+
+
+//(单选题)int[][]arr = new int[3][];
+System.out.println(arr[0].length);
+运行结果是（ ）。
+ A.会出现编译错误。
+ B.运行期会抛出ArithmeticException异常
+ C.运行期会抛出IOException异常
+ D.运行期会抛出NullPointerException异常
+
+正确答案：D
+此题目考查的是当对一个null值的对象，访问其属性或方法
+
+程序会出现NullPointerException异常。
+
+二维数组没有初始化内部数组，则二维数组中的数组都是null值
+
+选项D正确。
+
+
+
+//(单选题)下列自定义方法用于实现获取指定子串在字符串中出现次数
+public int getSubCount(String str,String substr){	
+int count = 0;	
+int index = 0;	
+while((index = str.indexOf(substr, index))!=-1){	
+count++;
+index =____________________________________________;	
+}	
+return count;	
+}
+完成如上功能，空白处应该填写（ ）。
+ A.index + substr.length();
+ B.index + str.length();
+ C.index + substr.size();
+ D.index + str.size();
+
+正确答案：A
+本题考查通过infexOf()和length()方法结合，检索已知字符串中，某个子串出现的
+
+次数。
+
+定义方法的思路如下：
+
+1、确定方法的返回值类型
+
+如何确定方法的返回类型？根据需求，功能中需要有运算结果，结果为子串出现的
+
+次数，返回int类型。
+
+2、确定方法的参数列表
+
+如何确定方法的参数列表？分析功能中是否有不确定的数据参与运算。本题需求中
+
+计算的某个字符串中，子串出现的次数，所以有两个字符串类型的参数，一个用于
+
+查找的字符串，一个查找哪一个子串。
+
+根据以上思路定义出方法为：public int subString(String str,String subStr){};
+
+方法中，需要使用循环依次查找子串，出现依次，计数变量自增1，直到找不到
+
+子串，循环结束。
+
+当查找到有一个子串，就从该子串的下一个位置继续查找。
+
+所以空白处应该使用index+strSub.length();
+
+选项A正确。
+
+
+
+//(多选题)关于集合框架，说法正确的是（ ）。
+ A.与数组不同，集合框架是容量可变的容器
+ B.集合框架不能保存基本类型，但是可以将它们转换为包装类后保存
+ C.集合框架中的List, Set, Map接口都是Collection接口的子接口
+ D.集合类除了提供可变容量的存储外，还提供了对数据的算法
+
+正确答案：ABD
+本题考查集合框架
+
+选项C错误，Map接口不是Collection接口的子接口。
+
+
+
+//(多选题)下列选项中，属于线程安全的API是（ ）。
+ A.ArrayList
+ B.StringBuilder
+ C.HashTable
+ D.StringBuffer
+
+正确答案：CD
+此题目考查的是常见的线程安全的API
+
+选项CD正确。
+
+
+
+//(多选题)下面关于XML解析，说法正确的是：（）。
+ A.使用DOM的方式解析文档，只能实现对XML的读取而不能写出XML数据。
+ B.DOM方式在解析XML文档时，需要将整个文档全部加载到内存中。
+ C.SAX解析方式的效率优于DOM的方式。
+ D.使用DOM4j组件对XML解析时，可以支持XPath查找。
+
+正确答案：BCD
+此题目考查的是XML解析。
+
+选项A 错误，DOM提供了对XML读取和写出的操作。
+
+
+
+//(多选题)关于Java 异常，下列说法正确的是（）。
+ A.异常是定义了程序中遇到的可恢复的错误，而不是编译时的语法错误
+ B.try……catch语句中对try 内语句监测，如果发生异常，则把异常信息放入Exception类的对象中
+ C.throws 用来表示一个方法有可能抛出异常给上一层，则在调用该方法时必须捕捉或抛出异常，否则无法编译通过
+ D.main方法不可以使用 throws 抛出异常
+
+正确答案：ABC
+此题目考查的是异常概述。
+
+选项D错误，任何方法都可以抛出异常。
+
+
+
+
+//(多选题)下列能够正确的创建一个线程并启动线程的是（ ）。
+ A.class Test01 {
+public static void main(String[] args)throws Exception {
+Thread t1 = new Thread1();
+t1.run();
+}
+}
+class Thread1 extends Thread{
+public void run() {
+System.out.println("haha");
+}
+}
+ B.class Test01 {
+public static void main(String[] args)throws Exception {
+Thread t1 = new Thread1();
+t1.start();
+}
+}
+class Thread1 extends Thread{
+public void run() {
+System.out.println("haha");
+}
+}
+ C.class Test01 {
+public static void main(String[] args)throws Exception {
+Thread t = new Thread(new Thread1());
+t.start();
+}
+}
+class Thread1 implements Runnable{
+public void run() {
+System.out.println("haha");
+}
+}
+ D.class Test01 {
+public static void main(String[] args)throws Exception {
+Thread t = new Thread(new Thread1());
+t.run();
+}
+}
+class Thread1 implements Runnable{
+public void run() {
+System.out.println("haha");
+}
+}
+
+正确答案：BC
+此题目考查的是线程的创建和启动
+
+创建线程类可以继承Threa类，此时需要重写run()方法，来指定该线程任务。
+
+通过该类直接创建的对象即为一个线程对象。
+
+创建线程类还可以实现Runnable接口，通过创建该类对象，实例化某个线程
+
+的线程功能。再通过该对象，传递给Thread类对象的构造器参数，来创建线程。
+
+启动线程，通过线程对象调用start()方法来启动线程
+
+选项AD都错在启动线程的方法错误，不是run()方法，而是start()方法。
+
+选项BC正确。
+
+
+
+
+
+
+
+
+
+

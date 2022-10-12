@@ -1,0 +1,1158 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------第一天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#【回顾】
+1.ssm整合
+1）导入整合的jar包 mybatis-spring
+2) 整合的步骤
+	<!-- Spring和mybatis整合 -->
+	   <!-- 扫描持久层的包 -->
+	   <bean id="scannerConfigurer" 
+	   class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	   	<property name="basePackage" value="cn.tedu.ssm.dao"/>
+	   </bean>
+	   
+	   <!-- SqlsessionFactoryBean工厂 -->
+	   <bean id="factoryBean" 
+	   	class="org.mybatis.spring.SqlSessionFactoryBean">
+	   		<!-- 依赖注入dataSource -->
+	   		<property name="dataSource" ref="dataSource"/>
+	   		<!-- 配置映射文件 -->
+	   		<property name="mapperLocations" 
+	   				  value="classpath:mappers/*.xml"/>
+	   </bean>
+2.ssm整合的工程
+3.分析：页面-数据库（表）
+  开发：表-页面
+##4.部门管理-显示部门
+###4.1 持久层
+###4.2 业务层
+1.在接口中定义方法IDeptService接口中
+	List<Dept> getAll();	
+2.在实现类中是实现方法
+	public List<Dept> getAll(){
+		//调用持久层的方法，返回list			
+		return deptDao.selectAll();
+	}
+测试：
+###4.3 控制器层
+url
+	/getAllDept.do
+	参数列表：ModelMap
+	响应方式：转发    ---showAll.jsp
+	
+	@RequestMapping("/getAllDept.do")
+	public String getAllDept(ModelMap map){
+		1.调用业务层方法，返回list
+		2.把list添加到map中
+		3.return “showAll”；
+	}
+###4.4 页面
+1.在index.jsp页面上添加链接
+	<a href="${}/dept/getAllDept.do">显示部门信息</a>
+2.在web文件夹中，新建showAll.jsp
+3.在showAll.jsp页面上，显示集合的内容
+	1）把核心标签库导入
+	2）显示数据
+	<table border=1 >
+		<tr>
+			<th>部门编号</th>
+			<th>部门名称</th>
+			<th>部门地址</th>
+		</tr>
+		<c:forEach items="${list}" var="dept">
+			<tr>
+				<td>${dept.id}</td>
+				<td>${dept.deptName}</td>
+				<td>${dept.deptLoc}</td>
+			</tr>
+		</c:forEach>
+	</table>
+##5.部门管理-删除部门
+###5.1持久层
+1.在DeptDao接口中定义方法
+	void deleteById(Integer id);
+2.在映射文件中编写sql语句
+	<delete id="deleteById">
+		delete from dept
+		where
+			id=#{id}
+	</delete>
+测试：
+###5.2 业务层
+1.在IDeptSerivce接口中，定义方法
+	void removeDept(Integer id);
+2.在实现类中实现方法
+	public void removeDept(Integer id){
+		//调用持久层的方法
+	}
+测试：
+###5.3 控制器层
+url
+	/removeDept.do
+	参数列表：id
+	响应页面：重定向
+	return "redirect:getAllDept.do";
+
+	@RequestMapping("/removeDept.do")
+	public String removeDept(Integer id){
+		//1.调用业务层的删除的方法
+		deptService.removeDept(id);
+		//2.设置重定向
+		return "redirect:getAllDept.do";
+	}
+###5.4 页面 
+1.给删除文本添加链接
+	<a href="${}/dept/removeDept.do">删除</a>
+#学子商城
+1.用户管理
+1.1 注册
+1.2 登录
+1.3 修改
+2.地址管理
+2.1 添加地址
+2.2 查询地址
+2.3 修改地址
+3.商品管理
+3.1 商品分类
+3.2 展示商品
+3.3 商品详情
+4.购物车管理
+4.1 显示购物车页面
+4.2 管理购物车的商品
+#ajax
+##1.ajax 定义
+1.什么是ajax？不是新技术；由javascript,xml,XMLHttpRequest组合在一起；能实现异步提交的功能。
+2.同步提交：当用户发送请求时，当前页面不可以使用；服务器响应页面到客户端，响应完成，用户才可以使用页面。
+3.异步提交：当用户发送请求时，当前页面还可以继续使用，当异步请求的数据响应给页面，页面把数据显示出来。
+4.特点：异步请求,实现局部刷新，响应数据，提高用户的体验性。
+##2.ajax 工作原理
+![](2018-07-26_141418.png)
+1.工作原理：客户端发送请求，请求交给xhr，xhr把请求提交给服务器，服务器进行业务处理，服务器响应数据交给xhr对象，xhr对象接收数据，由javascript把数据写到页面上。
+##3.xhr对象的创建及其相关的函数和属性
+1.创建xhr对象
+	function getXhr(){
+		//声明xhr对象
+		var xhr;
+		//判断浏览器是否支持xhr对象
+		if(window.XMLHttpRequest){
+			如果支持，那么直接创建对象
+			xhr = new XMLHttpRequest();
+		}else{
+			//不支持通常指IE5 IE6，使用以下方式创建对象
+			new ActiveXObject("Microsoft.XMLHttp");
+		}
+		返回xhr对象
+		return xhr;
+	}
+2.xhr.open("get/post","xx.do",true);表示创建url
+	第一个参数表示发送请求的方式
+	第二个参数表示url
+	第三个表示是否为异步请求（true表示异步请求）
+3.xhr.send();表示发送请求
+	第一：如果是get请求，函数的参数为空
+	第二：如果是post请求，参数列表为：
+	xhr.send(name=admin&pwd=123456);
+	//当发送post请求的时候，必须要设置content-type并且要在send之前设置
+	xhr.setRequestHeader("content-type","application/x-www-form-urlencoded");
+4.xhr.onreadystatechange:监听，5种状态，从发送请求到响应完成。
+	xhr.onreadystatechange=function(){
+		if(xhr.readyState==4&&xhr.status==200){
+			var msg = xhr.responseText;
+		}
+	}
+5.xhr.readyState:表示获取5中状态
+	0.表示未初始化
+	1.初始化成功，发送请求
+	2.接收响应数据
+	3.解析响应数据
+	4.响应成功
+6.xhr.status:表示获取状态码
+7.xhr.responseText:表示接收服务器端的文本
+##4.使用异步请求-处理用户名是否存在
+1.新建工程
+	1）maven项目
+	2）添加web.xml
+	3) 添加tomcat运行环境
+	4）依赖jar包 spring-webmvc
+	5) spring-mvc.xml
+	6) web.xml
+2.创建web文件夹，在web新建register.jsp,添加两个文本框和一个按钮。
+    <%@ page contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>
+	<html>
+	<head>
+	<title>Insert title here</title>
+	</head>
+	<body style="font-size:30px;">
+	<form action="">
+		姓名：<input type="text" 
+		name="name" id="name" onblur="checkName()"><br>
+		密码：<input type="password" 
+		name="pwd" id="pwd"><br>
+		<input type="submit" value="注册">
+	</form>
+	</body>
+	<script type="text/javascript">
+	//获取xhr对象
+	function getXhr(){
+		//1.定义变量
+		var xhr;
+		//2.两个分支；判断浏览器是否支持xhr对象
+		if(window.XMLHttpRequest){
+			//如果支持，直接创建对象
+			xhr = new XMLHttpRequest();
+		}else{
+			//兼容ie5 ie6
+			xhr = new ActiveXObject("Microsoft.XMLHttp");
+		}
+		//返回xhr
+		return xhr;
+	}
+	
+	//用户名异步验证
+	function checkName(){
+		//1.创建xhr对象
+		var xhr = getXhr();
+		//2.监听状态变化
+		xhr.onreadystatechange = function(){
+			//如果是第五种状态，并且状态码是200
+			if(xhr.readyState==4&&xhr.status==200){
+				//接收服务器端的数据
+				var msg = xhr.responseText;
+				alert(msg);
+			}
+		}
+		//3.xhr.open();
+		//获取文本框的值
+		var nameValue = document.getElementById("name").value;
+		xhr.open("get",
+				"../user/checkName.do?name="+nameValue,
+				true);
+		//4.xhr.send();
+		xhr.send();
+		
+	}
+	</script>
+	</html>
+3.控制器
+	@Controller
+	@RequestMapping("/user")
+	public class UserController {
+	//显示页面
+	@RequestMapping("/showRegister.do")
+	public String showRegister(){
+		return "register";
+	}
+	
+	//处理异步请求
+	//@ResponseBody表示如果不响应页面，使用该注解
+	//如果响应页面，不使用该注解
+	@RequestMapping("/checkName.do")
+	@ResponseBody
+	public String checkName(String name){
+		//判断name，如果为admin，响应错误信息；
+		if("admin".equals(name)){
+			//设置状态码：0表示失败；1表示成功
+			return "0";
+		}else{
+			return "1";
+		}
+	}
+	}
+##5.异步请求（post）二级菜单联动
+1.表单
+	<body style="font-size:30px;">
+	<form action="" >
+		姓名：<input type="text" 
+		name="name" id="name" onblur="checkName()">
+		<span id="namespan"></span>
+		<br>
+		密码：<input type="password" 
+		name="pwd" id="pwd"><br>
+		<input type="submit" value="注册">
+	</form><br>
+	
+	省份：
+	<select id="province" onchange="getCity(this.value)">
+		<option>请选择。。。</option>
+		<option value="1">河北省</option>
+		<option value="2">辽宁省</option>
+	</select>
+	城市：
+	<select id="city">
+		<option>请选择。。。</option>
+		
+	</select>
+	</body>
+	<script type="text/javascript">
+	//获取xhr对象
+	function getXhr(){
+		//1.定义变量
+		var xhr;
+		//2.两个分支；判断浏览器是否支持xhr对象
+		if(window.XMLHttpRequest){
+			//如果支持，直接创建对象
+			xhr = new XMLHttpRequest();
+		}else{
+			//兼容ie5 ie6
+			xhr = new ActiveXObject("Microsoft.XMLHttp");
+		}
+		//返回xhr
+		return xhr;
+	}
+	
+	//二级联动菜单
+	//cityCode表示省份的编号
+	function getCity(provinceCode){
+		//1.获取xhr对象
+		var xhr = getXhr();
+		//2.监听状态变化
+		xhr.onreadystatechange=function(){
+			if(xhr.readyState==4&&xhr.status==200){
+				var msg = xhr.responseText;
+				alert(msg);
+			}
+		}
+		//3.打开连接
+		//当发送post请求的时候，必须要设置content-type
+		//必须在send之前设置
+		xhr.open("post","../user/getCity.do",true);
+		xhr.setRequestHeader("content-type",
+				"application/x-www-form-urlencoded");
+		//4.发送请求
+		xhr.send("provinceCode="+provinceCode);
+	}
+	
+	//用户名异步验证
+	function checkName(){
+		//1.创建xhr对象
+		var xhr = getXhr();
+		//2.监听状态变化
+		xhr.onreadystatechange = function(){
+			//如果是第五种状态，并且状态码是200
+			if(xhr.readyState==4&&xhr.status==200){
+				//接收服务器端的数据
+				var msg = xhr.responseText;
+				//在namespan节点，添加姓名是否可用的信息
+				if(msg=="1"){
+					document.getElementById("namespan").innerHTML
+					="姓名可以使用";
+				}else{
+					document.getElementById("namespan").innerHTML
+					="姓名不可以使用";
+				}
+				
+				
+			}
+		}
+		//3.xhr.open();
+		//获取文本框的值
+		var nameValue = document.getElementById("name").value;
+		xhr.open("get",
+				"../user/checkName.do?name="+nameValue,
+				true);
+		//4.xhr.send();
+		xhr.send();
+		
+	}
+	</script>
+2.控制器方法
+	//实现二级联动菜单
+	@RequestMapping("/getCity.do")
+	//不响应页面，使用该注解
+	@ResponseBody
+	public String getCity(String provinceCode){
+		if(provinceCode.equals("1")){
+			return "11,石家庄;12,秦皇岛";
+		}else{
+			return "21,沈阳市;22,大连市";
+		}
+	}
+3.处理异步请求的响应数据的中文
+		<!-- mvc注解驱动（功能更加强大） -->
+	  	<mvc:annotation-driven>
+	  		<mvc:message-converters>
+	  			<!-- 设置异步请求响应数据中文不乱码 -->
+	  			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+	  				<constructor-arg index="0" value="utf-8"></constructor-arg>
+	  			</bean>
+	  		</mvc:message-converters>
+	  	</mvc:annotation-driven>
+-------------------------------------------------------------------------------------------------------------------------------------------------第二天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#【回顾】
+1.ajax：由javascript,xml,XMLHttpRequest组成，实现异步提交。
+2.异步提交：提交请求时，当前页面可以使用
+3.特点：异步提交，实现局部刷新
+4.ajax使用
+4.1.创建xhr对象：new XMLHttpRequest();
+4.2.xhr.open("get/post","url",true);
+4.3.xhr.send();get? post?
+4.4.xhr.onreadystatechange=function(){};
+4.5.xhr.readyState==4   xhr.status==200
+4.6.xhr.responseText
+#json
+##1.json定义
+1.什么是json：客户端和服务器端实现数据交互的轻量级的解决方案。
+2.语法格式：key-value
+	var obj = {"state":1,"message":"成功"};
+	obj.state    1
+	obj.message  成功
+3.好处：易于编写，易于阅读，易于访问
+4.执行原理：服务器将从数据库查询到的数据封装成对象或是业务处理返回的对象，也就是java对象，
+			按照一定的规则，转换成json字符串，服务器将json字符串响应给客户端或是页面，客户端或是页面拿到json字符串后，转换成json对象。
+![](2018-07-27_144449.png)
+##2.客户端
+1.一个k-v的json 对象:要求key必须放到双引号中
+	var obj = {"state":1};
+	obj.state
+2.多个k-v的json对象
+	var obj = {
+				"state":0,
+				"message":"失败"
+			  };
+	obj.state   obj.message
+3.k-v中包含一个对象
+	var obj = {
+			"state":1,
+			"message":"成功"，
+			"data":{"name":"admin","age":18}
+			  };
+	obj.data.name
+4.k-v，value是一个数组（服务器端就是list）
+	var obj = {
+			"state":1,
+			"message":"成功",
+			"data":[
+		{"cityCode":21,"cityName":"沈阳市"},
+		{"cityCode":22,"cityName":"大连市"},
+		{"cityCode":23,"cityName":"鞍山市"}
+		]
+	};
+	for(i = 0;i<obj.data.length;i++){
+		obj.data[i].cityCode;
+		obj.data[i].cityName;
+	}
+##3.服务器端(字符串)字符串怎么变成对象？
+	var strValue=xhr.responseText;
+	var obj = JSON.parse(strValue);
+1.添加依赖的 jar包  jackson.jar*3
+	<!-- 解析bean对象，转换为表示符合json格式的字符串 -->
+	<dependency>
+	  <groupId>com.fasterxml.jackson.core</groupId>
+	  <artifactId>jackson-databind</artifactId>
+	  <version>2.8.3</version>
+	</dependency>
+	<dependency>
+	  <groupId>com.fasterxml.jackson.core</groupId>
+	  <artifactId>jackson-core</artifactId>
+	  <version>2.8.3</version>
+	</dependency>
+	<dependency>
+	  <groupId>com.fasterxml.jackson.core</groupId>
+	  <artifactId>jackson-annotations</artifactId>
+	  <version>2.8.3</version>
+	</dependency>
+  </dependencies>
+2.定义通用的响应结果类
+	public class ResponseResult<T> implements Serializable{
+	private static final long serialVersionUID = -4394155310369805409L;
+	private Integer state;
+	private String message;
+	private  T data;
+	public ResponseResult() {
+		super();
+	}
+	public ResponseResult(Integer state, String message) {
+		super();
+		this.state = state;
+		this.message = message;
+	}
+	public ResponseResult(Integer state, String message, T data) {
+		super();
+		this.state = state;
+		this.message = message;
+		this.data = data;
+	}
+	public Integer getState() {
+		return state;
+	}
+	public void setState(Integer state) {
+		this.state = state;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public T getData() {
+		return data;
+	}
+	public void setData(T data) {
+		this.data = data;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		result = prime * result + ((message == null) ? 0 : message.hashCode());
+		result = prime * result + ((state == null) ? 0 : state.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ResponseResult other = (ResponseResult) obj;
+		if (data == null) {
+			if (other.data != null)
+				return false;
+		} else if (!data.equals(other.data))
+			return false;
+		if (message == null) {
+			if (other.message != null)
+				return false;
+		} else if (!message.equals(other.message))
+			return false;
+		if (state == null) {
+			if (other.state != null)
+				return false;
+		} else if (!state.equals(other.state))
+			return false;
+		return true;
+	}
+	@Override
+	public String toString() {
+		return "ResponseResult [state=" + state + ", message=" + message + ", data=" + data + "]";
+	}
+	}
+3.编写控制器类
+	@Controller
+	public class UserController {
+	//响应客户端的数据为state：1，message：成功
+	@RequestMapping("/test1.do")
+	//@ResponseBody表示响应页面
+	@ResponseBody
+	public ResponseResult<Void> test1(){
+		//封装了状态码和信息
+		ResponseResult<Void> rr = 
+		new ResponseResult<Void>(1,"成功");
+		return rr;
+	}
+	//返回对象
+	@RequestMapping("/test2.do")
+	@ResponseBody
+	public ResponseResult<User> test2(){
+		//1.创建rr对象
+		ResponseResult<User> rr = 
+		new ResponseResult<User>(1,"成功");
+		//2.设置data属性值为user对象
+		User user = new User();
+		user.setId(1);
+		user.setName("admin");
+		user.setPhone("13800138000");
+		user.setAddress("中鼎8层");
+		rr.setData(user);
+		//3.返回rr对象
+		return rr;
+	}
+	//返回list
+	@RequestMapping("/test3.do")
+	@ResponseBody
+	public ResponseResult<List<User>> test3(){
+		//1.创建rr对象
+		ResponseResult<List<User>> rr =
+		new ResponseResult<List<User>>(1,"成功");
+		//2.设置data属性值为list
+		User user1 = new User();
+		user1.setId(1);
+		user1.setName("小李");
+		user1.setPhone("13800138000");
+		user1.setAddress("中鼎7层");
+		
+		User user2 = new User();
+		user2.setId(2);
+		user2.setName("小刘");
+		user2.setPhone("13900139000");
+		user2.setAddress("中鼎8层");
+		
+		List<User> list = new ArrayList<User>();
+		list.add(user1);
+		list.add(user2);
+		
+		rr.setData(list);
+		
+		//3.返回rr对象
+		return rr;
+	}
+	}
+测试
+##练习：发送异步请求，在修改页面显示用户信息
+开发步骤
+1.开发页面
+	<html>
+	<head>
+	<title>Insert title here</title>
+	</head>
+	<body style="font-size:30px;">
+
+	姓名：<input type="text" name="name" id="name"><br>
+	电话：<input type="text" name="phone" id="phone"><br>
+	地址：<input type="text" name="address" id="address"><br>
+	<input type="button" value="显示数据" onclick="showData()">
+	</body>
+	<script type="text/javascript">
+	//显示数据到文本框中
+	function showData(){
+		//1.创建xhr对象
+		var xhr = new XMLHttpRequest();
+		//2.监听事件处理
+		xhr.onreadystatechange=function(){
+			if(xhr.readyState==4&&xhr.status==200){
+				//json格式的字符串
+				var values = xhr.responseText;
+				//把json字符串转换为json对象
+				var obj = JSON.parse(values);
+				//以下3个方法，分别给文本框赋值
+				document.getElementById("name").value=
+					obj.data.name;
+				document.getElementById("phone").value=
+					obj.data.phone;
+				document.getElementById("address").value=
+					obj.data.address;
+				
+				
+			}
+		}
+		//3.open
+		xhr.open("get",
+		"${pageContext.request.contextPath}/showData.do",true);
+		//4.send
+		xhr.send();
+	}
+	</script>
+	</html>
+2.控制器
+		//显示update 页面
+	@RequestMapping("/showUpdate.do")
+	public String showUpdate(){
+		return "update";
+	}
+	//异步请求，处理返回User对象数据
+	@RequestMapping("/showData.do")
+	@ResponseBody
+	public ResponseResult<User> showData(){
+		//1.创建rr对象
+		ResponseResult<User> rr = 
+			new ResponseResult<User>(1,"成功");
+		//2.设置data属性值为user
+		User user = new User();
+		user.setName("小王");
+		user.setPhone("13800138000");
+		user.setAddress("中鼎大厦8层");
+		rr.setData(user);
+		
+		//3.reurn rr;
+		return rr;
+	}
+##练习2：异步请求，二级联动菜单
+1.页面
+	省：<select id="province" onchange="getCity(this.value)">
+		<option>。。。。</option>
+		<option value="1">河北省</option>
+		<option value="2">辽宁省</option>
+	</select>
+	城市：<select id="city">
+		<option>。。。。</option>
+	</select>
+	//获取城市信息
+	function getCity(provinceCode){
+		//1.创建rr对象
+		var xhr = new XMLHttpRequest();
+		//2.事件监听
+		xhr.onreadystatechange=function(){
+			if(xhr.readyState==4&&xhr.status==200){
+				//获取json字符串
+				var values = xhr.responseText;
+				//json字符串转换成json对象
+				var obj = JSON.parse(values);
+				//获取城市节点
+				var cityNode = 
+					document.getElementById("city");
+				cityNode.innerHTML="<option>.....</option>";
+				//循环数组
+				for(i = 0;i<obj.data.length;i++){
+					//创建option对象
+					var option = 
+						new Option(obj.data[i].cityName,
+								   obj.data[i].cityCode);
+					//option节点添加的city节点中
+					cityNode.appendChild(option);
+				}
+			}
+		};
+		//3.定义url
+		xhr.open("get",
+			"${pageContext.request.contextPath}/getCity.do?code="+provinceCode,true);
+		//4.发送请求
+		xhr.send();
+	}
+2.控制器方法
+	//获取城市信息
+	@RequestMapping("/getCity.do")
+	@ResponseBody
+	public ResponseResult<List<City>> 
+			getCity(Integer code){
+		//定义集合
+		List<City> list = 
+				new ArrayList<City>();
+		//如果是河北省，设置城市信息，添加到list
+		if(code==1){
+			list.add(new City("11","石家庄"));
+			list.add(new City("12","秦皇岛"));
+		}else{
+		//如果是辽宁省，设置城市信息，添加到list
+			list.add(new City("21","沈阳"));
+			list.add(new City("22","大连"));
+		}
+		//创建rr对象
+		ResponseResult<List<City>> rr = 
+		new ResponseResult<List<City>>(1,"成功");
+		//设置data的值为list
+		rr.setData(list);
+		//返回rr对象
+		return rr;
+	}
+#jQuery实现异步提交
+1.导入jquery  *.js
+	`<script type="text/javascript" 
+	src="${pageContext.request.contextPath}/js/jquery-3.1.1.min.js"></script>`
+2.异步提交
+	//使用jQuery实现获取城市信息
+	function getCity(provinceCode){
+		//使用ajax函数发送异步请求
+		$.ajax({
+			//请求的url
+			url:"${pageContext.request.contextPath}/getCity.do",
+			//不管是get还是post，提交的数据，都由data提供
+			data:"code="+provinceCode,
+			//表示提交方式
+			type:"get",
+			//表示响应数据的类型
+			dataType:"json",
+			//obj就是服务器响应的json对象
+			success:function(obj){
+				$("#city").html("<option>。。。。</option>");
+				for(i=0;i<obj.data.length;i++){
+					var option = 
+						new Option(obj.data[i].cityName,
+								   obj.data[i].cityCode);
+					$("#city").append(option);
+				}
+			}
+		});
+	}
+-------------------------------------------------------------------------------------------------------------------------------------------------第三天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#项目开发流程
+1.需求说明书
+2.概要设计
+3.详细设计
+4.编码
+5.测试
+6.产品的交付
+7.售后（产品维护）
+#ssm 学子商城
+##创建工程
+1.创建maven 工程
+2.添加web.xml
+3.添加tomcat运行环境
+4.添加jar包
+	spring-webmvc
+	mysql
+	commons-dbcp
+	mybatis
+	mybatis-spring
+	spring-jdbc  ============== 事务
+	jstl
+	junit
+	jackson*3
+5.设计包层次
+	cn.tedu.store.bean
+	cn.tedu.store.controller
+	cn.tedu.store.service
+	cn.tedu.store.mapper
+6.在resources文件夹下边，放置
+	application*2,
+	spring-mvc
+	db.properties
+	建mappers文件夹，xxMapper.xml
+7.web.xml
+	listener,filter servlet三大组件的配置
+#建库
+1.创建数据库 tedustore :create database tedustore
+2.表名 t_user 
+3.建表-----来自页面
+	id           int                 primary key
+	username     varchar(50)         unique
+	password     varchar(50)         not null
+	email        varchar(50)         not null
+	phone        varchar(32)         not null
+	image        varchar(100) 
+	gender       int(1)
+	created_user varchar(50) 
+	created_time date
+	modified_user varchar(50) 
+	modified_time date
+	create table t_user(
+		id int auto_increment primary key,
+		username varchar(50) unique,
+		password varchar(50) not null,
+		email varchar(50) not null,
+		phone varchar(32) not null,
+		image varchar(100),
+		gender int(1),
+		created_user varchar(50),
+		created_time date,
+		modified_user varchar(50),
+		modified_time date
+	)default charset=utf8
+#用户管理
+## 1.用户管理-注册
+###1.1 注册-持久层
+创建User实体类
+	public class User{
+		private Integer id;
+		private String username;
+		private String password;
+		private String email;
+		private String phone;
+		private String image;
+		private Integer gender;
+		private String createdUser;
+		private Date createdTime;
+		private String modifiedUser;
+		private Date modifiedTime;
+		//set、get方法
+		//object类的3个方法
+		//序列化接口和序列化id
+	}	
+1.定义接口和接口中的方法
+	public interface UserMapper{
+		//插入一条用户信息
+		void insertUser(User user);
+		//根据用户名查询；把结果封装成user对象
+		User selectByUsername(String username);
+	}
+2.新建UserMappepr.xml（改名DeptMapper.xml,UserMapper.xml）文件;
+在Mapper中，定义namespace的属性值：namespace="cn.tedu.store.mapper.UserMapper";在文件中，定义insert节点，编写insert语句；定义select节点，编写 select语句
+	<insert id="insertUser" parameterType="cn.tedu.store.bean.User">
+		insert into t_user (
+			username,password,email,phone,
+			created_user,created_time,
+			modified_user,modified_time
+		)values(
+			#{username},#{password}.....
+		)
+	</insert>
+	<select id="selectByUsername" resultType="xx.xx.User">
+		select 
+			id,username,password,email,phone,image,gender,
+			created_user createdUser,created_time createdTime,
+			modified_user modifiedUser,
+			modified_time modifiedTime
+		from
+			t_user
+		where
+			username = #{username}
+	</select>
+测试：新建测试类，测试以上方法
+###1.2注册-业务层
+1.定义接口IUserService,定义方法addUser(User user)
+
+	public interface IUserService{
+		void addUser(User user);
+	}
+在cn.tedu.store.service.ex包新建异常类UsernameAlreadyExistException
+	public class UsernameAlreadyExistException extends RuntimeException{
+		public UsernameAlreadyExistException(){
+		}
+		public UsernameAlreadyExistException(String msg){
+			super(msg);
+		}
+	}
+2.在UserService接口的实现类中，实现方法
+	@Service
+	public class UserService implements IUserService{
+		@Resource
+		private UserMapper userMapper;
+		public void addUser(User user){
+			//1.调用持久层的方法selectByUsername(user.getUsername());返回user1对象
+			//2.如果user1==null，调用insertUser(user)方法；
+			//3.如果user1!=null,抛出异常UsernameAlreadyExistException;
+
+			throw new UsernameAlreadyExistException("用户名已存在！");
+		}
+	}
+在测试类中定义测试方法，测试以上方法
+###1.3 邮箱，电话号码和用户名的验证
+1.邮箱
+1）持久层
+在接口UserMapper中定义方法
+	Integer selectByEmail(String email);
+在UserMapper.xml，定义select节点，定义select语句
+	<select id="selectByEmail" resultType="java.lang.Integer">
+		select count(*) 
+		from
+			t_user
+		where
+			email=#{email}
+	</select>
+测试：
+2）业务层
+在接口IUserService中定义方法
+	boolean checkEmail(String email);
+在实现类中UserService中实现方法
+	public boolean checkEmail(String email){
+		//1.调用持久层的方法：selectByEmail(email);返回Integer的值,用n接收。
+		//2.如果n>0,那么返回true；否则，返回false
+	}
+测试：
+2.电话
+1）持久层：同email的持久层
+2）业务层：同email的业务层
+
+-------------------------------------------------------------------------------------------------------------------------------------------------第四天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+##1.用户注册
+###1.1注册-持久层
+	insert
+	select
+###1.2注册-业务层
+	addUser:掉用select方法，返回user对象;判断user对象是否为null
+###1.3 邮箱，电话号码验证
+1.邮箱：
+持久层：根据邮箱查询，返回int
+业务层：判断返回值是否为0、
+2.电话
+3.用户名的业务层
+	在接口IUserService中定义方法
+		boolean checkUsername(String username);
+	在实现类UserService中实现方法
+		public boolean checkUsername(String username) {
+			return userMapper.selectByUsername(username)!=null;
+		}
+测试：
+###1.4 控制器层
+url：
+	/showRegister.do  ---------显示页面
+	参数列表：无
+	响应方式：转发
+	/checkUsername.do   --------异步请求，验证用户名
+	参数列表：username
+	响应方式：ResponseBody
+	/checkEmail.do   --------异步请求，验证邮箱
+	参数列表：email
+	响应方式：ResponseBody
+	/checkPhone.do   --------异步请求，验证电话
+	参数列表：phone
+	响应方式：ResponseBody
+	/register.do     --------异步请求，提交注册
+	参数列表：4个框
+	响应方式：ResponseBody
+1.新建UserController类
+	@Controller
+	@RequestMapping("/user")
+	public class UserController{
+		//显示注册的视图
+		@RequestMapping("/showRegister.do")
+		public String showRegister(){
+			return "register";
+		}
+	}
+把register.html改register.jsp
+测试：
+在bean包中定义ResponseResult类
+	public class ResponseResult<T>{
+		private Integer state;
+		private String message;
+		private T data;
+		//....
+	}
+2.在控制器中定义方法，完成用户名的异步验证
+	@Resource
+	private IUserService userService;
+	@RequestMapping("/checkUsername.do")
+	@ResponseBody
+	public ResponseResult<Void> checkUsername(String username){  ResponseResult<Void> rr= null；
+		//1.调用业务层方法userService.checkUsername(username);返回boolean  b；
+		//2.if（b）{
+				rr  = 
+				new ResponseResult<Void>(0,"用户名不可以使用");
+			}else{
+				rr = 
+				new ResponseResult<Void>(1,"用户名可以使用");
+			}
+		return rr；
+	}
+测试：http://....../user/checkUsername.do?username=admin6
+3.定义方法验证邮箱和电话
+	@RequestMapping("/checkEmial.do")
+	@ResponseBody
+	public ResponseResult<Void> checkEmail(String email){
+		//1.声明rr对象
+		//2.调用业务层方法：checkEmail(email);返回Boolean b
+		//3.如果b为true
+		创建rr对象，state：0 message:邮箱不可以使用
+		//4.如果b为false
+		创建rr对象，state：1 message:邮箱可以使用
+		//5.返回rr；
+	}
+测试：
+同上完成电话的异步验证的方法
+4.定义控制器方法：实现注册按钮的提交功能
+	@RequestMapping("/register.do")
+	@ResponseBody
+	public ResponseResult<Void> register(
+		@RequestParam("uname") String username,
+		@RequestParam("upwd") String password,
+		String email,String phone){
+		//1.声明rr对象
+		//2.try{
+			//调用业务层方法addUser(user);
+			//3.创建rr对象 state：1 message:添加数据成功
+		}catch(RuntimeException ex){
+			//4.创建rr对象 state：0 message:ex.getMessage();
+		}
+		//5.返回rr；		
+	}
+###1.5页面
+	在register.jsp页面添加异步请求的代码
+	/**发起异步GET请求，询问服务器用户名是否已经存在**/
+	  $.ajax({
+		  url:"../user/checkUsername.do",
+		  data:"username="+$("#uname").val(),
+		  type:"get",
+		  dataType:"json",
+		  success:function(obj){
+			  alert(obj.state+","+obj.message);
+		  }
+	  });
+		/**发起异步GET请求，询问服务器邮箱是否已经存在**/
+	 	  $.ajax({
+	 		  url:"../user/checkEmail.do",
+	 		  data:"email="+$("#email").val(),
+	 		  type:"get",
+	 		  dataType:"json",
+	 		  success:function(obj){
+	 			  alert(obj.state+","+obj.message);
+	 		  }
+	 	  });
+
+	  /**发起异步GET请求，询问服务器电话是否已经存在**/
+      $.ajax({
+    	  url:"../user/checkPhone.do",
+    	  data:"phone="+$("#phone").val(),
+    	  type:"get",
+    	  dataType:"json",
+    	  success:function(obj){
+    		  alert(obj.state+","+obj.message);
+    	  }
+      });
+	//注册按钮提交
+		if(lengths==5){
+    	$.ajax({
+    		url:"../user/register.do",
+    		//serialize()表示提交表单所有组件
+    		data:$("#form-register").serialize(),
+    		type:"post",
+    		dataType:"json",
+    		success:function(obj){
+    			if(obj.state==0){
+    				$("#unamespan").html(obj.message);
+    				$("#unamespan").attr("class","msg-error");
+    			}else{
+    				alert(obj.message);
+    			}
+    		}
+    	});
+    }
+测试：
+##2.用户管理-登录
+###2.1 持久层
+###2.2 业务层
+1.在IUserService 接口中定义方法
+	User login(String username,String password);
+新建两个异常类
+	UserNotFoundException，PasswordNotMatchException
+2.在UserService实现类中实现方法
+	public User login(String username,String password){
+		//1.调用持久层的方法：selectByUsername(username);返回user对象
+		//2.if(user==null){
+			//3.抛出异常UserNotFoundException("账号不存在");
+		}else{
+			//4.从user对象中取出密码和参数的password比较
+			if(user.getPassword().equals(password)){
+			//5.return user;
+			}else{
+			//6.抛出异常PasswordNotMatchException("密码错误")
+			}
+		}
+	}
+-------------------------------------------------------------------------------------------------------------------------------------------------第五天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------第六天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------第七天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------第八天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------第九天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------第十天-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
