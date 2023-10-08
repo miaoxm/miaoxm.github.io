@@ -123,6 +123,164 @@ app,run(debug=True)
 </html>
 ```
 
+# 点赞系统
+
+> dianzan/app.py
+
+```python
+# pip install flask
+from flask import Flask,render_template,request
+
+app = Flask(__name__)
+
+data = [
+    {'id': 0, 'name': '中秋节', 'num': 0},
+    {'id': 1, 'name': '春节', 'num': 0},
+    {'id': 2, 'name': '清明节', 'num': 0}
+]
+
+@app.route('/index')
+def index():
+    return render_template('index.html', data = data)
+
+@app.route('/dianzan')
+def dianzan():
+    id = request.args.get('id')
+    data[int(id)]['num'] += 1
+    return render_template('index.html', data = data)   
+
+app.run(debug=True)
+```
+
+> dianzan/templates/index/html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>
+        这是一个点赞系统
+    </h1>
+    <table border=“1”>
+        <tr>
+        	<td>ID</td>
+            <td>节假日</td>
+            <td>点赞数</td>
+            <td>操作</td>
+        </tr>
+        {% for i in data %}
+        <tr>
+            <td>{{ i.id }}</td>
+            <td>{{ i.name }}</td>
+            <td>{{ i.num }}</td>
+        	<td>
+                <a href="/dianzan?id={{ i.id }}">点赞</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+```
+
+# 查询工具
+
+```python
+# pip install Flask
+from flask import Flask,render_template
+import requests
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/search_phone')
+def search_phone():
+    phone = request.args.get('phone')
+    data = get_mobile(phone)
+    retune '<br/>'.jion(data)
+
+def get_mobile(phone):
+    url = f'https://www.ip138.com/mobile.asp?mobile={phone}&action=mobile'
+    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
+    resp = requests.get(url, headers = headers)
+    resp.encoding='utf-8'
+    e = etree.HTML(resp.text)
+    datas = e.xpath('//tr/td[2]/span/text()')
+    return datas
+
+app.run(debug=True)
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/search_phone" method="get">
+        手机号：<input type=“text” name="phone" id=""/>
+        <input type="submit" value="查询s
+    </form>
+</body>
+</html>
+```
+
+# 登录系统
+
+```python
+# pip install flask
+from flask import Flask,render_template,request
+
+app = Flask(__name__)
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/index')
+def index():
+    uname = request.args.get('uname')
+    # 判断用户名是否正确
+    return f'主页！！！欢迎登录{uname}'
+
+
+app.run(debug=True)
+```
+
+> login.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/index" method="get">
+        用户名：<input type="text" name="uname" id=""/>
+        密 码：<input type="password" name=""pwd />
+        <input type="submit" value="登 录"/>
+    </form>
+</body>
+</html>
+```
+
 
 
 - 网络爬虫工程师
